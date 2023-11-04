@@ -1,0 +1,19 @@
+{
+  "name": "connect-to-oracle-db",
+  "version": "1.0.0",
+  "description": "Establishes a connection to the Oracle database and sets up sample routing for locally-hosted projects in HTML, CSS, and JS. Utilizes NodeJS. Recommended source-code editor is Visual Studio Code.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "prepare": "node connectToDB.js"
+  },
+  "author": "Liz O'Hara, Villanova University",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "mysql": "^2.18.1",
+    "oracledb": "^5.5.0"
+  }
+}

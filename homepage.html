@@ -1,0 +1,78 @@
+<!DOCTYPE html>   
+<html>   
+<head>  
+<meta name="viewport" content="width=device-width, initial-scale=1">  
+<link rel="stylesheet" href="/stylesheets/homepage.css">
+<title> Test Page </title>  
+</head>
+
+<script>
+
+  function validateGetDataForm() {
+
+    /* You can use this function to validate input, especially
+    if you DB requires specific valus for specific attributes */
+
+    var color = document.getElementById("color").value; 
+    var bstyle = document.getElementById("bstyle").value; 
+        
+    if(color == "") {  
+      console.log("Please enter the bike color.");
+      return false;  
+    }  
+    if(bstyle == "") {  
+    console.log("Please enter the bike style.");
+      return false;  
+    }
+  
+    return true;
+  }
+
+  function validateUpdateDataForm() {
+
+    /* You can use this function to validate input, especially
+    if you DB requires specific valus for specific attributes */
+
+    var bikeid = document.getElementById("bikeid").value; 
+    var bavailable = document.getElementById("bavailable").value; 
+        
+    if(bikeid == "") {  
+      console.log("Please enter the bike ID.");
+      return false;  
+    }  
+    if(bavailable == "") {  
+    console.log("Please enter the bike availability.");
+      return false;  
+    }
+
+    return true;
+  }
+
+</script>
+
+<body> 
+    
+    <div class="container"> 
+        <form class="formContainer" action="/getbikes" method="post">
+            <h1 class="header"> Get bike data </h1>  
+            <label class="inputFieldLabel">Color: </label>   
+            <input type="text" placeholder="Enter Color" name="color" id="color">
+            <label class="inputFieldLabel">Style: </label>   
+            <input type="text" placeholder="Enter Style" name="bstyle" id="bstyle">
+            <button type="submit" onclick="return validateGetDataForm()">Get Bike Data</button> 
+      </form> 
+    </div>
+
+    <div class="container"> 
+      <form class="formContainer" action="/updateavailability" method="post">
+        <h1 class="header"> Update bike availability</h1>  
+        <label class="inputFieldLabel">BikeID: </label>   
+        <input type="text" placeholder="Enter Bike ID" name="bikeid" id="bikeid">
+        <label class="inputFieldLabel">Availability: </label>   
+        <input type="text" placeholder="Enter Availability" name="bavailable" id="bavailable">
+        <button type="submit" onclick="return validateUpdateDataForm()">Update Availability</button> 
+      </form> 
+    </div>
+    
+</body>     
+</html>
