@@ -1,0 +1,14 @@
+CREATE OR REPLACE TRIGGER Manager_Approval
+BEFORE INSERT ON PayStub
+FOR EACH ROW
+DECLARE p_M_Approval VARCHAR(1);
+BEGIN
+
+    SELECT M_Approval INTO p_M_Approval
+    FROM TIMESHEET
+    WHERE TimeSheetID= :new.TimeSheetID;
+    
+    IF p_M_Approval = 'N'
+    THEN RAISE_APPLICATION_ERROR(-20001, 'The timesheet has not been approved.');
+    END IF;
+END;
