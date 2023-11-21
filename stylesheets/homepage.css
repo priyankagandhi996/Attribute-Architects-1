@@ -1,0 +1,29 @@
+/* Style for the container */
+.container {
+    margin: 20px;
+  }
+  
+  /* Styling for the label acting as the clickable box */
+  .selectBox {
+    display: block;
+    padding: 20px 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* Hide the actual radio button */
+  .selectBox input[type="radio"] {
+    display: none;
+  }
+  
+  /* Styling for the text within the box */
+  .selectText {
+    font-size: 18px;
+  }
+  
+  /* Styling when the box is clicked/selected */
+  .selectBox:hover,
+  .selectBox input[type="radio"]:checked + .selectText {
+    background-color: #f0f0f0;
+  }
