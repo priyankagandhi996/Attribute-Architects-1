@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Employee Timesheets</title>
+  <link rel="stylesheet" href="../stylesheets/hr.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Employee Timesheets</h1>
+
+    <form class="addEmployeeForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="PayPeriod">Pay Period:</label>
+          <input type="text" id="PayPeriod">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="HoursWorked">Hours Worked:</label>
+          <input type="text" id="HoursWorked">
+        </div>
+      </div>
+      <button type="submit">Update Timesheet</button>
+    </form>
+    
+    <table id="employeeTable">
+      <thead>
+        <tr>
+          <th>Pay Period</th>
+          <th>Hours Worked</th>
+          <th>Approved</th>
+        </tr>
+      </thead>
+      <tbody id="employeeData">
+        <tr>
+          <td>11/28/2023</td>
+          <td>32</td>
+          <td>No</td>
+          <td>
+            <button class="deleteBtn">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+  </script>
+</body>
+</html>

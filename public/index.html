@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/stylesheets/homepage.css">
+  <title>Test Page</title>
+  <script>
+    var role = "Undecided";
+
+    function redirectToPage(url) {
+      window.location.href = url;
+    }
+  </script>
+</head>
+<body> 
+  <h1 class="header">Select Your Role</h1>
+
+  <div class="optionsContainer">
+
+    <form class="formContainer" action="/rolePages/manager.html" method="post">
+    <label for="managerOption" class="selectBox" onclick="redirectToPage('rolePages/managerLogin.html')">
+      Manager
+    </label>
+    </form>
+
+    <form class="formContainer" action="/updateavailability" method="post">
+      <label for="employeeOption" class="selectBox" onclick="redirectToPage('/rolePages/employeeLogin.html')">
+        Employee
+      </label>
+    </form>
+
+    <form class="formContainer" action="/updateavailability" method="post">
+      <label for="hrOption" class="selectBox" onclick="redirectToPage('rolePages/hr.html')">
+        HR Representative
+      </label>
+    </form>
+  </div>
+
+</body>
+</html>

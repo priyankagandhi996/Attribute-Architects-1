@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Manager Login</title>
+  <link rel="stylesheet" href="../stylesheets/managerLogin.css"> 
+  <script>
+    function redirectToManagerPage(event) {
+      event.preventDefault();
+      const form = document.getElementById('loginForm');
+      const employeeID = form.querySelector('#employeeID').value;
+      window.location.href = `manager.html?employeeID=${employeeID}`;
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Manager Login</h1>
+
+    <form class="loginForm" id="loginForm" onsubmit="redirectToManagerPage(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="employeeID">Employee ID:</label>
+          <input type="text" id="employeeID" name="employeeID" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</body>
+</html>
