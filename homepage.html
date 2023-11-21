@@ -1,78 +1,90 @@
-<!DOCTYPE html>   
-<html>   
-<head>  
-<meta name="viewport" content="width=device-width, initial-scale=1">  
-<link rel="stylesheet" href="/stylesheets/homepage.css">
-<title> Test Page </title>  
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/stylesheets/homepage.css">
+  <title>Test Page</title>
+  <style>
+    body {
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+    /* Additional styling for the header */
+    .header {
+      font-size: 24px;
+      text-align: center;
+      margin-top: 20px;
+      border: 2px solid #000;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    /* Flex container for the selectable options */
+    .optionsContainer {
+      display: flex;
+      justify-content: flex-start; /* Align items from left to right */
+      gap: 10px; /* Adjust the gap between boxes */
+      margin-top: 20px;
+      margin-left: 200px;
+      margin-right: 200px;
+    }
+
+    @media screen and (max-width: 600px) {
+      .optionsContainer {
+        justify-content: space-evenly;
+      }
+    }
+    /* Styling for the selectable options */
+    .selectBox {
+      width: 200px; /* Set width for square */
+      height: 200px; /* Set height for square */
+      font-size: 20px;
+      font-family: 'Helvetica';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #000000;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .selectBox:hover {
+      background-color: #228B22;
+    }
+  </style>
+  <script>
+    var role = "Undecided";
+
+    function redirectToPage(url) {
+      window.location.href = url;
+    }
+  </script>
 </head>
-
-<script>
-
-  function validateGetDataForm() {
-
-    /* You can use this function to validate input, especially
-    if you DB requires specific valus for specific attributes */
-
-    var color = document.getElementById("color").value; 
-    var bstyle = document.getElementById("bstyle").value; 
-        
-    if(color == "") {  
-      console.log("Please enter the bike color.");
-      return false;  
-    }  
-    if(bstyle == "") {  
-    console.log("Please enter the bike style.");
-      return false;  
-    }
-  
-    return true;
-  }
-
-  function validateUpdateDataForm() {
-
-    /* You can use this function to validate input, especially
-    if you DB requires specific valus for specific attributes */
-
-    var bikeid = document.getElementById("bikeid").value; 
-    var bavailable = document.getElementById("bavailable").value; 
-        
-    if(bikeid == "") {  
-      console.log("Please enter the bike ID.");
-      return false;  
-    }  
-    if(bavailable == "") {  
-    console.log("Please enter the bike availability.");
-      return false;  
-    }
-
-    return true;
-  }
-
-</script>
-
 <body> 
-    
-    <div class="container"> 
-        <form class="formContainer" action="/getbikes" method="post">
-            <h1 class="header"> Get bike data </h1>  
-            <label class="inputFieldLabel">Color: </label>   
-            <input type="text" placeholder="Enter Color" name="color" id="color">
-            <label class="inputFieldLabel">Style: </label>   
-            <input type="text" placeholder="Enter Style" name="bstyle" id="bstyle">
-            <button type="submit" onclick="return validateGetDataForm()">Get Bike Data</button> 
-      </form> 
-    </div>
+  <h1 class="header">Select Your Role</h1>
 
-    <div class="container"> 
-      <form class="formContainer" action="/updateavailability" method="post">
-        <h1 class="header"> Update bike availability</h1>  
-        <label class="inputFieldLabel">BikeID: </label>   
-        <input type="text" placeholder="Enter Bike ID" name="bikeid" id="bikeid">
-        <label class="inputFieldLabel">Availability: </label>   
-        <input type="text" placeholder="Enter Availability" name="bavailable" id="bavailable">
-        <button type="submit" onclick="return validateUpdateDataForm()">Update Availability</button> 
-      </form> 
-    </div>
-    
-</body>     
+  <!-- Container for selectable options -->
+  <div class="optionsContainer">
+
+    <form class="formContainer" action="/rolePages/manager.html" method="post">
+    <label for="managerOption" class="selectBox" onclick="redirectToPage('rolePages/manager.html')">
+      Manager
+    </label>
+    </form>
+
+    <form class="formContainer" action="/updateavailability" method="post">
+      <label for="employeeOption" class="selectBox" onclick="redirectToPage('/rolePages/employee.html')">
+        Employee
+      </label>
+    </form>
+
+    <form class="formContainer" action="/updateavailability" method="post">
+      <label for="hrOption" class="selectBox" onclick="redirectToPage('rolePages/hr.html')">
+        HR Representative
+      </label>
+    </form>
+  </div>
+
+  <!-- Any other content or scripts can be placed here -->
+</body>
 </html>
