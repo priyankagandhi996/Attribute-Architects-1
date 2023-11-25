@@ -17,11 +17,11 @@
         </div>
         <div class="form-group">
           <label for="F_Name">First Name:</label>
-          <input type="text" id="F_Name" required>
+          <input type="text" id="F_Name" >
         </div>
         <div class="form-group">
           <label for="L_Name">Last Name:</label>
-          <input type="text" id="L_Name" required>
+          <input type="text" id="L_Name" >
         </div>
         <div class="form-group">
           <label for="B_Date">Birth Date:</label>
@@ -29,7 +29,7 @@
         </div>
         <div class="form-group">
           <label for="Address">Address:</label>
-          <input type="text" id="Address" required>
+          <input type="text" id="Address" >
         </div>
       </div>
       <div class="form-row">
@@ -43,15 +43,15 @@
         </div>
         <div class="form-group">
           <label for="Position">Position:</label>
-          <input type="text" id="Position" required>
+          <input type="text" id="Position" >
         </div>
         <div class="form-group">
           <label for="Wage">Wage:</label>
-          <input type="text" id="Wage" required>
+          <input type="text" id="Wage" >
         </div>
         <div class="form-group">
           <label for="ManagerID">Manager ID:</label>
-          <input type="text" id="ManagerID" required>
+          <input type="text" id="ManagerID" >
         </div>
       </div>
       <button type="submit">Add Employee</button>
@@ -123,33 +123,76 @@
     document.getElementById('addEmployeeForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
-        const formData = {
-            EmployeeID: document.getElementById('EmployeeID').value,
-            F_Name: document.getElementById('F_Name').value,
-            L_Name: document.getElementById('L_Name').value,
-            B_Date: document.getElementById('B_Date').value,
-            Address: document.getElementById('Address').value,
-            Email: document.getElementById('Email').value,
-            DepartmentID: document.getElementById('DepartmentID').value,
-            Position_1: document.getElementById('Position').value,
-            Wage: document.getElementById('Wage').value,
-            ManagerID: document.getElementById('ManagerID').value,
-        };
+        const EmployeeID = document.getElementById('EmployeeID').value;
+        const F_Name = document.getElementById('F_Name').value;
+        const L_Name = document.getElementById('L_Name').value;
+        const B_Date = document.getElementById('B_Date').value;
+        const Address = document.getElementById('Address').value;
+        const Email = document.getElementById('Email').value;
+        const DepartmentID = document.getElementById('DepartmentID').value;
+        const Position_1 = document.getElementById('Position').value;
+        const Wage = document.getElementById('Wage').value;
+        const ManagerID = document.getElementById('ManagerID').value;
 
-        fetch('/insertEmployee', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            fetchAndPopulateData();
-        })
-        .catch(error => console.error('Error adding employee:', error));
+        if (EmployeeID !== '' && F_Name !== '' && L_Name !== ''
+            && B_Date !== '' && Address !== '' && Email !== '' && DepartmentID !== ''
+            && Position_1 !== '' && Wage !== '' && ManagerID !== '') {
+
+            const formData = {
+                EmployeeID,
+                F_Name,
+                L_Name,
+                B_Date,
+                Address,
+                Email,
+                DepartmentID,
+                Position_1,
+                Wage,
+                ManagerID,
+            };
+
+            fetch('/insertEmployee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                fetchAndPopulateData();
+            })
+            .catch(error => console.error('Error adding employee:', error));
+        } else {
+            const formData = {
+                EmployeeID,
+                F_Name,
+                L_Name,
+                B_Date,
+                Address,
+                Email,
+                DepartmentID,
+                Position_1,
+                Wage,
+                ManagerID,
+            };
+
+            fetch('/modifyEmployee', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                fetchAndPopulateData();
+            })
+            .catch(error => console.error('Error modifying employee:', error));
+        }
     });
-  </script>
+</script>
 </body>
 </html>
