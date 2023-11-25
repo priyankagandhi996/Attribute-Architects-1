@@ -46,87 +46,145 @@ connection.then(connection => {
 	});
 
 	// GET PATHS TO JSON FILES & CREATIVE FILES
-	app.get('/bikesdatajson', function(req, res) {
-		res.sendFile(path.join(__dirname, '/json/bikesdata.json'));
+
+	app.get('/employees', async (req, res) => {
+		try {
+			const result = await connection.execute('SELECT * FROM EMPLOYEEP');
+			res.json(result.rows);
+		} catch (error) {
+			console.error('Error fetching data:', error);
+			res.status(500).json({ error: 'Internal Server Error' });
+		}
 	});
 
     // SET ROUTES TO GET/UPDATE/INSERT DATA
-	app.post('/getbikes', function(request, response) {
-	    // Capture the input fields
-	    let color = request.body.color;
-	    let bstyle = request.body.bstyle;
 
-	    // Log what the user has entered
-	    console.log("Color Entered:", color, ", Style Entered:", bstyle);
-
-	    if (color && bstyle){
-
-            retrieveMatchingBikes();
-
-            async function retrieveMatchingBikes(){
-
-                const result = await connection.execute(
-                    'SELECT * FROM BIKES WHERE color = :1 AND bstyle = :2',
-                    [color, bstyle]
-                );
-                
-                if (result.rows.length > 0) {
-                    fs.writeFileSync('./json/bikesdata.json', JSON.stringify(result.rows)); // puts the result in the json
-                    // console.log("Results: ", result.rows);
-                    // console.log("Length: ", result.rows.length);
-                    response.redirect('/showResults');
-                }
-                else {
-                    response.send("No results found. Please try again. Ensure first letter of color and style are capital.")
-                }
-
-                // based on the result, you could redirect the user to a different page:
-                // response.redirect('/home');	// Redirect to home page
-
-            }
-        }
-    });
-
-	app.post('/updateavailability', function(request, response) {
-	    // Capture the input fields
-	    let bikeid = request.body.bikeid;
-	    let bavailable = request.body.bavailable;
-
-	    // Log what the user has entered
-	    console.log("ID Entered:", bikeid, ", Availability Entered:", bavailable);
-
-	    if (bikeid && bavailable){
-
-            updateMatchingBike();
-
-            async function updateMatchingBike(){
-
-				try {
-					const updateBike = await connection.execute(
-						`UPDATE BIKES
-						 SET bavailable = :1
-						 WHERE bikeid = :2`,
-						[bavailable, bikeid]
-					);
-
-					if (updateBike.rowsAffected === 1) { // confirms that only one row was affected, as expected
-						await connection.commit(); // commits the changes to the remote DB
+	app.post('/deleteEmployee', async (req, res) => {
+		const { employeeID } = req.body;
 	
-						const updateJson = await connection.execute( // select query to confirm the change was made and update the json
-							'SELECT * FROM BIKES'
-						);
+		try {
+			const result = await connection.execute(
+				'DELETE FROM EMPLOYEEP WHERE EmployeeID = :1',
+				[employeeID]
+			);
+	
+			if (result.rowsAffected === 1) {
+				res.json({ success: true, message: 'Employee deleted successfully.' });
+			} else {
+				res.json({ success: false, message: 'Employee not found or deletion unsuccessful.' });
+			}
+		} catch (error) {
+			console.error('Error deleting employee:', error);
+			res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
+	});
+
+	app.post('/insertEmployee', async (req, res) => {
+		try {
+			// Capture the input fields from the request body
+			const {
+				EmployeeID,
+				F_Name,
+				L_Name,
+				B_Date,
+				Address,
+				Email,
+				DepartmentID,
+				Position_1,
+				Wage,
+				ManagerID
+			} = req.body;
+	
+			// Validate required fields
+			if (!EmployeeID || !F_Name || !L_Name || !Address || !Position_1 || !Wage) {
+				return res.status(400).json({ error: 'Missing required fields.' });
+			}
+	
+			// You may want to validate other fields and handle date formatting
+	
+			// Create the INSERT statement
+			const insertQuery = `
+				INSERT INTO EMPLOYEEP (
+					EmployeeID,
+					F_Name,
+					L_Name,
+					B_Date,
+					Address,
+					Email,
+					DepartmentID,
+					Position_1,
+					Wage,
+					ManagerID
+				) VALUES (
+					:EmployeeID,
+					:F_Name,
+					:L_Name,
+					TO_DATE(:B_Date, 'YYYY-MM-DD'),
+					:Address,
+					:Email,
+					:DepartmentID,
+					:Position_1,
+					:Wage,
+					:ManagerID
+				)`;
+	
+			// Execute the INSERT statement
+			const result = await connection.execute(insertQuery, {
+				EmployeeID,
+				F_Name,
+				L_Name,
+				B_Date,
+				Address,
+				Email,
+				DepartmentID,
+				Position_1,
+				Wage,
+				ManagerID
+			}, { autoCommit: true }); // autoCommit: true to commit the transaction immediately
+	
+			// Check if the insert was successful
+			if (result.rowsAffected === 1) {
+				return res.json({ success: true, message: 'Employee inserted successfully.' });
+			} else {
+				return res.json({ success: false, message: 'Employee insertion unsuccessful.' });
+			}
+		} catch (error) {
+			console.error('Error inserting employee:', error);
+			return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
+	});
+
+	// Add an endpoint for updating an employee
+	app.post('/updateEmployee', async (req, res) => {
+		const { employeeID, F_Name, L_Name, B_Date, Address, Email, DepartmentID, Position, Wage, ManagerID } = req.body;
 		
-						fs.writeFileSync('./json/bikesdata.json', JSON.stringify(updateJson.rows)); // puts the result in the json
-						response.redirect('/showResults');
-					} else {
-						response.send("An error occurred. Please try again.")
-					}
-				} catch { // error message if the update did not work
-					response.send("Bike update was unsuccessful. Check that the values are in the correct range and try again.");
-				}
-            }
-        }
-    });
+		try {
+			// Check if the employeeID exists in the database
+			const checkResult = await connection.execute('SELECT * FROM EMPLOYEEP WHERE employeeID = :1', [employeeID]);
+
+			if (checkResult.rows.length === 0) {
+				// If the employeeID doesn't exist, insert a new record
+				const insertResult = await connection.execute(
+					'INSERT INTO EMPLOYEEP VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10)',
+					[employeeID, F_Name, L_Name, B_Date, Address, Email, DepartmentID, Position, Wage, ManagerID]
+				);
+				await connection.commit();
+				res.json({ message: 'Employee inserted successfully.' });
+			} else {
+				// If the employeeID exists, update the existing record
+				const updateResult = await connection.execute(
+					'UPDATE EMPLOYEEP SET F_Name = :2, L_Name = :3, B_Date = :4, Address = :5, Email = :6, DepartmentID = :7, Position = :8, Wage = :9, ManagerID = :10 WHERE employeeID = :1',
+					[employeeID, F_Name, L_Name, B_Date, Address, Email, DepartmentID, Position, Wage, ManagerID]
+				);
+				await connection.commit();
+				res.json({ message: 'Employee updated successfully.' });
+			}
+		} catch (error) {
+			console.error('Error modifying employee:', error);
+			res.status(500).json({ error: 'Internal Server Error' });
+		}
+	});
+
 
 	/* 
 	   Along with SELECT and UPDATE statements, you can also use insert statements to add more rows.

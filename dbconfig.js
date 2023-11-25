@@ -9,7 +9,7 @@ NEVER commit your username and password to the remote repository.
 */
 
 module.exports = {
-    user          : "username",
-    password      : "password", 
+    user          : "dbteam5",
+    password      : "F23dbteam5R", 
     connectString : "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=CSDB.csc.villanova.edu)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SID=orcl)))" 
 };

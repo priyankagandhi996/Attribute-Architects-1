@@ -9,7 +9,7 @@
   <div class="container">
     <h1>HR Portal</h1>
 
-    <form class="addEmployeeForm">
+    <form class="addEmployeeForm" id="addEmployeeForm">
       <div class="form-row">
         <div class="form-group">
           <label for="EmployeeID">Employee ID:</label>
@@ -70,24 +70,86 @@
           <th>Action</th>
         </tr>
       </thead>
-      <tbody id="employeeData">
-        <tr>
-          <td>0001</td>
-          <td>John</td>
-          <td>Doe</td>
-          <td>john@example.com</td>
-          <td>12345</td>
-          <td>Manager</td>
-          <td>$50/hour</td>
-          <td>
-            <button class="deleteBtn">Delete</button>
-          </td>
-        </tr>
-      </tbody>
+      <tbody id="employeeData"></tbody>
     </table>
   </div>
 
   <script>
+    function fetchAndPopulateData() {
+        fetch('/employees')
+            .then(response => response.json())
+            .then(data => {
+                const employeeData = document.getElementById('employeeData');
+                employeeData.innerHTML = '';
+
+                data.forEach(employee => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${employee[0]}</td>
+                        <td>${employee[1]}</td>
+                        <td>${employee[2]}</td>
+                        <td>${employee[5]}</td>
+                        <td>${employee[6]}</td>
+                        <td>${employee[7]}</td>
+                        <td>${employee[8]}</td>
+                        <td>
+                            <button class="deleteBtn" onclick="deleteEmployee(${employee[0]})">Delete</button>
+                        </td>
+                    `;
+                    employeeData.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    fetchAndPopulateData();
+
+    function deleteEmployee(employeeID) {
+        fetch('/deleteEmployee', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ employeeID }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            fetchAndPopulateData();
+        })
+        .catch(error => console.error('Error deleting employee:', error));
+    }
+
+    document.getElementById('addEmployeeForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const formData = {
+            EmployeeID: document.getElementById('EmployeeID').value,
+            F_Name: document.getElementById('F_Name').value,
+            L_Name: document.getElementById('L_Name').value,
+            B_Date: document.getElementById('B_Date').value,
+            Address: document.getElementById('Address').value,
+            Email: document.getElementById('Email').value,
+            DepartmentID: document.getElementById('DepartmentID').value,
+            Position_1: document.getElementById('Position').value,
+            Wage: document.getElementById('Wage').value,
+            ManagerID: document.getElementById('ManagerID').value,
+        };
+
+        fetch('/insertEmployee', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            fetchAndPopulateData();
+        })
+        .catch(error => console.error('Error adding employee:', error));
+    });
   </script>
 </body>
 </html>
