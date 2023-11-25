@@ -1,0 +1,45 @@
+--Trigger to ensure you submit valid pay period---
+
+CREATE or REPLACE TRIGGER Valid_PayPeriod
+BEFORE INSERT ON TIMESHEET
+FOR EACH ROW
+DECLARE
+    pday NUMBER;
+BEGIN
+    -- Extract the day of the month from the PayPeriod
+    pday := EXTRACT(DAY FROM :NEW.PayPeriod);
+
+    -- Check if the day is not the 1st
+    IF pday <> 1 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Invalid PayPeriod. It must be the 1st of the month.');
+    END IF;
+END;
+
+--Testing Trigger---
+
+INSERT INTO TIMESHEET VALUES (1011, 1201, DATE '2023-02-02', 160, 'Y');
+
+--Trigger to ensure only one timesheet for one employee per payperiod--
+
+CREATE OR REPLACE TRIGGER One_Timesheet_Per_PayPeriod
+BEFORE INSERT ON TIMESHEET
+FOR EACH ROW
+DECLARE
+    p_existing_timesheet_count NUMBER;
+BEGIN
+    -- Check if there is already a timesheet for the employee and pay period
+    SELECT COUNT(*)
+    INTO p_existing_timesheet_count
+    FROM TIMESHEET
+    WHERE EmployeeID = :NEW.EmployeeID
+      AND PayPeriod = :NEW.PayPeriod;
+
+    -- If there is an existing timesheet, raise an error
+    IF p_existing_timesheet_count > 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Only one timesheet per employee per pay period is allowed.');
+    END IF;
+END;
+
+--Testing Trigger---
+
+INSERT INTO TIMESHEET VALUES (1011, 1201, DATE '2023-02-01', 160, 'N');
