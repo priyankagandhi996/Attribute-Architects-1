@@ -154,36 +154,115 @@ connection.then(connection => {
 		}
 	});
 
-	// Add an endpoint for updating an employee
-	app.post('/updateEmployee', async (req, res) => {
-		const { employeeID, F_Name, L_Name, B_Date, Address, Email, DepartmentID, Position, Wage, ManagerID } = req.body;
-		
+	app.post('/modifyEmployee', async (req, res) => {
 		try {
+			const {
+				EmployeeID,
+				F_Name,
+				L_Name,
+				B_Date,
+				Address,
+				Email,
+				DepartmentID,
+				Position_1,
+				Wage,
+				ManagerID
+			} = req.body;
+	
+			// Validate required fields
+			if (!EmployeeID) {
+				return res.status(400).json({ error: 'EmployeeID is required.' });
+			}
+	
 			// Check if the employeeID exists in the database
-			const checkResult = await connection.execute('SELECT * FROM EMPLOYEEP WHERE employeeID = :1', [employeeID]);
-
+			const checkResult = await connection.execute('SELECT * FROM EMPLOYEEP WHERE EmployeeID = :1', [EmployeeID]);
+	
 			if (checkResult.rows.length === 0) {
-				// If the employeeID doesn't exist, insert a new record
-				const insertResult = await connection.execute(
-					'INSERT INTO EMPLOYEEP VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10)',
-					[employeeID, F_Name, L_Name, B_Date, Address, Email, DepartmentID, Position, Wage, ManagerID]
-				);
-				await connection.commit();
-				res.json({ message: 'Employee inserted successfully.' });
+				return res.json({ success: false, message: 'Employee not found.' });
+			}
+	
+			// If the employeeID exists, it's an update
+			// Build the update query dynamically based on provided fields
+			const updateFields = [];
+			const updateValues = {};
+	
+			if (F_Name !== undefined && F_Name.trim() !== '') {
+				updateFields.push('F_Name = :F_Name');
+				updateValues.F_Name = F_Name;
+			}
+	
+			if (L_Name !== undefined && L_Name.trim() !== '') {
+				updateFields.push('L_Name = :L_Name');
+				updateValues.L_Name = L_Name;
+			}
+	
+			if (B_Date !== undefined && B_Date.trim() !== '') {
+				updateFields.push('B_Date = B_Date');
+				updateValues.B_Date = B_Date;
+			}
+
+			if (Address !== undefined && Address.trim() !== '') {
+				updateFields.push('Address = :Address');
+				updateValues.Address = Address;
+			}
+
+			if (Email !== undefined && Email.trim() !== '') {
+				updateFields.push('Email = :Email');
+				updateValues.Email = Email;
+			}
+
+			if (DepartmentID !== undefined && DepartmentID.trim() !== '') {
+				updateFields.push('DepartmentID = :DepartmentID');
+				updateValues.DepartmentID = DepartmentID;
+			}
+
+			if (Position_1 !== undefined && Position_1.trim() !== '') {
+				updateFields.push('Position_1 = :Position_1');
+				updateValues.Position_1 = Position_1;
+			}
+
+			if (Wage !== undefined & Wage.trim() !== '') {
+				updateFields.push('Wage = :Wage');
+				updateValues.Wage = Wage;
+			}
+
+			if (ManagerID !== undefined && ManagerID.trim() !== '') {
+				updateFields.push('ManagerID = :ManagerID');
+				updateValues.ManagerID = ManagerID;
+			}
+	
+			// Check if any fields are provided for update
+			if (updateFields.length === 0) {
+				return res.json({ success: false, message: 'No fields provided for update.' });
+			}
+	
+			const updateQuery = `
+				UPDATE EMPLOYEEP SET
+					${updateFields.join(', ')}
+				WHERE EmployeeID = :EmployeeID`;
+	
+			console.log('Update Query:', updateQuery);
+			console.log('Bind Variables:', { EmployeeID, ...updateValues });
+
+			// Execute the UPDATE statement
+			const updateResult = await connection.execute(updateQuery, {
+				EmployeeID,
+				...updateValues
+			}, { autoCommit: true });
+	
+			// Check if the update was successful
+			if (updateResult.rowsAffected === 1) {
+				return res.json({ success: true, message: 'Employee updated successfully.' });
 			} else {
-				// If the employeeID exists, update the existing record
-				const updateResult = await connection.execute(
-					'UPDATE EMPLOYEEP SET F_Name = :2, L_Name = :3, B_Date = :4, Address = :5, Email = :6, DepartmentID = :7, Position = :8, Wage = :9, ManagerID = :10 WHERE employeeID = :1',
-					[employeeID, F_Name, L_Name, B_Date, Address, Email, DepartmentID, Position, Wage, ManagerID]
-				);
-				await connection.commit();
-				res.json({ message: 'Employee updated successfully.' });
+				return res.json({ success: false, message: 'Employee update unsuccessful.' });
 			}
 		} catch (error) {
 			console.error('Error modifying employee:', error);
-			res.status(500).json({ error: 'Internal Server Error' });
+			return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
 		}
 	});
+	
+	
 
 
 	/* 
