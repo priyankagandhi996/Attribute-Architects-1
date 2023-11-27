@@ -32,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 connection.then(connection => {
 
 	// SET ALL THE ROUTES TO APP PAGES
+	  
 	app.get('/', function(req, res) {
 		res.sendFile(path.join(__dirname, '/homepage.html'));     // This is the page that will be rendered by default each time app is opened
 	});
@@ -47,9 +48,44 @@ connection.then(connection => {
 
 	// GET PATHS TO JSON FILES & CREATIVE FILES
 
+	app.get('/timesheets/:employeeID', async (req, res) => {
+		const employeeID = req.params.employeeID;
+	  
+		try {
+		  const result = await connection.execute(
+			'SELECT * FROM TIMESHEET WHERE EmployeeID = :employeeID',
+			[employeeID]
+		  );
+	  
+		  // Convert the result rows to an array of objects
+		  const timesheetData = result.rows.map(row => ({
+			TimeSheetID: row[0],
+			EmployeeID: row[1],
+			PayPeriod: row[2],
+			HoursWorked: row[3],
+			M_Approval: row[4]
+		  }));
+	  
+		  res.json(timesheetData);
+		} catch (error) {
+		  console.error('Error fetching data:', error);
+		  res.status(500).json({ error: 'Internal Server Error' });
+		}
+	  });
+	  
 	app.get('/employees', async (req, res) => {
 		try {
 			const result = await connection.execute('SELECT * FROM EMPLOYEEP');
+			res.json(result.rows);
+		} catch (error) {
+			console.error('Error fetching data:', error);
+			res.status(500).json({ error: 'Internal Server Error' });
+		}
+	});
+
+	app.get('/timesheets', async (req, res) => {
+		try {
+			const result = await connection.execute('SELECT * FROM TIMESHEET');
 			res.json(result.rows);
 		} catch (error) {
 			console.error('Error fetching data:', error);
@@ -78,6 +114,57 @@ connection.then(connection => {
 			res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
 		}
 	});
+
+	app.post('/insertTimesheet', async (req, res) => {
+		try {
+		  const {
+			TimeSheetID,
+			EmployeeID,
+			PayPeriod,
+			HoursWorked,
+			M_Approval
+		  } = req.body;
+	  
+		  // Check for missing required fields
+		  if (!TimeSheetID || !EmployeeID || !PayPeriod || !HoursWorked || !M_Approval) {
+			return res.status(400).json({ error: 'Missing required fields.' });
+		  }
+	  
+		  const insertQuery = `
+			INSERT INTO TIMESHEET (
+			  TimesheetID,
+			  EmployeeID,
+			  PayPeriod,
+			  HoursWorked,
+			  M_Approval
+			) VALUES (
+			  :TimeSheetID,
+			  :EmployeeID,
+			  TO_DATE(:PayPeriod, 'YYYY-MM-DD'),  -- Assuming PayPeriod is a date
+			  :HoursWorked,
+			  :M_Approval
+			)`;
+	  
+		  // Execute the INSERT statement
+		  const result = await connection.execute(insertQuery, {
+			TimeSheetID,
+			EmployeeID,
+			PayPeriod,
+			HoursWorked,
+			M_Approval
+		  }, { autoCommit: true });
+	  
+		  if (result.rowsAffected === 1) {
+			return res.json({ success: true, message: 'Timesheet inserted successfully.' });
+		  } else {
+			return res.json({ success: false, message: 'Timesheet insertion unsuccessful.' });
+		  }
+		} catch (error) {
+		  console.error('Error inserting timesheet:', error);
+		  return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
+	  });
+	  
 
 	app.post('/insertEmployee', async (req, res) => {
 		try {
