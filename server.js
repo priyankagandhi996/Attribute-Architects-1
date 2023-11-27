@@ -48,7 +48,39 @@ connection.then(connection => {
 
 	// GET PATHS TO JSON FILES & CREATIVE FILES
 
-	app.get('/timesheets/:employeeID', async (req, res) => {
+	app.get('/timesheets/:managerID', async (req, res) => {
+		const managerID = req.params.managerID;
+	  
+		try {
+		  const result = await connection.execute(
+			'SELECT \
+			  E.EmployeeID, \
+			  E.F_Name AS "First Name", \
+			  E.L_Name AS "Last Name", \
+			  T.PayPeriod, \
+			  T.HoursWorked \
+			FROM TIMESHEET T \
+			JOIN EMPLOYEEP E ON T.EmployeeID = E.EmployeeID \
+			WHERE E.ManagerID = :managerID AND T.M_Approval = \'N\'',
+			[managerID]
+		  );
+	  
+		  const timesheetData = result.rows.map(row => ({
+			EmployeeID: row[0],
+			FirstName: row[1],
+			LastName: row[2],
+			PayPeriod: row[3],
+			HoursWorked: row[4]
+		  }));
+	  
+		  res.json(timesheetData);
+		} catch (error) {
+		  console.error('Error fetching data:', error);
+		  res.status(500).json({ error: 'Internal Server Error' });
+		}
+	  });	  
+	  
+	app.get('/timesheetsForEmployees/:employeeID', async (req, res) => {
 		const employeeID = req.params.employeeID;
 	  
 		try {
@@ -72,16 +104,6 @@ connection.then(connection => {
 		  res.status(500).json({ error: 'Internal Server Error' });
 		}
 	  });
-	  
-	app.get('/employees', async (req, res) => {
-		try {
-			const result = await connection.execute('SELECT * FROM EMPLOYEEP');
-			res.json(result.rows);
-		} catch (error) {
-			console.error('Error fetching data:', error);
-			res.status(500).json({ error: 'Internal Server Error' });
-		}
-	});
 
 	app.get('/timesheets', async (req, res) => {
 		try {
@@ -93,7 +115,53 @@ connection.then(connection => {
 		}
 	});
 
+	app.get('/employees', async (req, res) => {
+		try {
+			const result = await connection.execute('SELECT * FROM EMPLOYEEP');
+			res.json(result.rows);
+		} catch (error) {
+			console.error('Error fetching data:', error);
+			res.status(500).json({ error: 'Internal Server Error' });
+		}
+	});
+
     // SET ROUTES TO GET/UPDATE/INSERT DATA
+
+	app.post('/approveTimesheet', async (req, res) => {
+		const employeeID = req.body.employeeID;
+		const payPeriod = req.body.payPeriod;
+	  
+		try {
+		  // Log the formatted date before executing the SQL statement
+		  const formattedPayPeriod = new Date(payPeriod).toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+		  });
+		  console.log('Formatted Pay Period:', formattedPayPeriod);
+	  
+		  // Log the SQL statement
+		  const sqlStatement = 'UPDATE TIMESHEET SET M_Approval = \'Y\' WHERE EmployeeID = :employeeID AND PayPeriod = TO_DATE(:payPeriod, \'MM/DD/YYYY\')';
+		  console.log('Executing SQL:', sqlStatement);
+	  
+		  const result = await connection.execute(
+			sqlStatement,
+			[employeeID, formattedPayPeriod]
+		  );
+	  
+		  console.log(result);
+	  
+		  // Check if any rows were updated
+		  if (result.rowsAffected && result.rowsAffected[0] > 0) {
+			res.json({ success: true, message: 'Approval updated successfully.' });
+		  } else {
+			res.json({ success: false, message: 'No rows updated. Check your conditions.' });
+		  }
+		} catch (error) {
+		  console.error('Error updating approval:', error);
+		  res.status(500).json({ error: 'Internal Server Error' });
+		}
+	  });	  
 
 	app.post('/deleteEmployee', async (req, res) => {
 		const { employeeID } = req.body;

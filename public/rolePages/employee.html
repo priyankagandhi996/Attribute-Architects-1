@@ -97,7 +97,7 @@
       const employeeID = document.getElementById('EmployeeID').value;
 
       try {
-        const response = await fetch(`/timesheets/${employeeID}`);
+        const response = await fetch(`/timesheetsForEmployees/${employeeID}`);
         const data = await response.json();
 
         console.log('Response Data:', data);
