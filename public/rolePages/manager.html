@@ -9,6 +9,17 @@
   <div class="container">
     <h1>Your Employees</h1>
     
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ManagerID">Enter Your EmployeeID</label>
+        <input type="text" id="ManagerID">
+      </div>
+    </div>
+    
+    <form class="findEmployeeTimecards" onsubmit="event.preventDefault(); fetchAndPopulateData();">
+      <button type="submit">See Employee Timesheets</button>
+    </form>
+
     <table id="employeeTable">
       <thead>
         <tr>
@@ -21,24 +32,103 @@
         </tr>
       </thead>
       <tbody id="employeeData">
-        <tr>
-          <td>0001</td>
-          <td>Seamus</td>
-          <td>Daniello</td>
-          <td>11/28/2023</td>
-          <td>32</td>
-          <td>
-            <div class="buttonContainer">
-              <button class="approveBtn">Yes</button>
-              <button class="deleteBtn">No</button>
-            </div>
-          </td>
-        </tr>
+        <!-- Table rows will be dynamically added here -->
       </tbody>
     </table>
   </div>
 
   <script>
+    async function updateApproval(employeeID, payPeriod) {
+  try {
+    console.log('Updating approval for Employee ID:', employeeID, 'and Pay Period:', payPeriod);
+
+    // Assuming payPeriod is in ISO 8601 format, convert it to 'YYYY-MM-DD'
+    const formattedPayPeriod = new Date(payPeriod).toLocaleDateString('en-US');
+    console.log(formattedPayPeriod);
+
+    console.log('Formatted Pay Period:', formattedPayPeriod);
+    console.log('Employee ID:', employeeID);
+
+    const response = await fetch('/approveTimesheet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        employeeID: employeeID,
+        payPeriod: formattedPayPeriod,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log(result.message);
+      // Optionally, you can perform additional actions after a successful update
+    } else {
+      console.error(result.message);
+      // Handle unsuccessful update
+    }
+  } catch (error) {
+    console.error('Error updating approval:', error);
+    // Handle fetch or other errors
+  }
+}
+
+
+    async function fetchAndPopulateData() {
+      const managerID = document.getElementById('ManagerID').value;
+
+      try {
+        const response = await fetch(`/timesheets/${managerID}`);
+        const data = await response.json();
+
+        console.log('Response Data:', data);
+
+        const tableBody = document.getElementById('employeeData');
+        tableBody.innerHTML = '';
+
+        if (data && data.length > 0) {
+          data.forEach(entry => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = entry.EmployeeID;
+            row.insertCell(1).textContent = entry.FirstName;
+            row.insertCell(2).textContent = entry.LastName;
+            const payPeriodDate = new Date(entry.PayPeriod);
+            row.insertCell(3).textContent = payPeriodDate.toISOString().split('T')[0];
+            row.insertCell(4).textContent = entry.HoursWorked;
+
+            const actionsCell = row.insertCell(5);
+            const approveBtn = document.createElement('button');
+            approveBtn.textContent = 'Yes';
+            approveBtn.classList.add('approveBtn');
+            actionsCell.appendChild(approveBtn);
+
+            const rejectBtn = document.createElement('button');
+            rejectBtn.textContent = 'No';
+            rejectBtn.classList.add('deleteBtn');
+            rejectBtn.classList.add('rejectBtn');
+            actionsCell.appendChild(rejectBtn);
+
+            approveBtn.addEventListener('click', async () => {
+              const employeeID = row.cells[0].textContent;
+              const payPeriod = row.cells[3].textContent;
+              await updateApproval(employeeID, payPeriod);
+              console.log('Approval updated for Employee ID:', employeeID);
+            });
+
+            rejectBtn.addEventListener('click', () => {
+              console.log('Rejection clicked for Employee ID:', employeeID);
+              // You can add rejection logic if needed
+            });
+          });
+        } else {
+          console.error('Error:', data.message || 'No data found');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
   </script>
 </body>
 </html>
