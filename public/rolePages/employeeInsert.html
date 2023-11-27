@@ -9,6 +9,7 @@
   <div class="container">
     <h1>Your Timesheets</h1>
 
+    <!-- Existing EmployeeID input -->
     <div class="form-row">
       <div class="form-group">
         <label for="EmployeeID">Enter EmployeeID:</label>
@@ -16,6 +17,7 @@
       </div>
     </div>
 
+    <!-- Form for inserting a new timesheet -->
     <form class="addTimesheetForm" onsubmit="event.preventDefault(); insertTimesheet();">
       <div class="form-row">
         <div class="form-group">
@@ -32,60 +34,52 @@
       <!-- You don't need to input TimeSheetID and M_Approval; they will be set in the backend -->
       <button type="submit">Insert Timesheet</button>
     </form>
-
-    <form class="addEmployeeForm" onsubmit="event.preventDefault(); fetchAndPopulateData();">
-      <button type="submit">Get Timecard Data</button>
-    </form>
     
-    <table id="employeeTable">
-      <thead>
-        <tr>
-          <th>Pay Period</th>
-          <th>Hours Worked</th>
-          <th>Approved</th>
-        </tr>
-      </thead>
-      <tbody id="employeeData">
-        <!-- Table data will be dynamically populated here -->
-      </tbody>
-    </table>
+    <!-- Table to display existing timesheets -->
+
+    <!-- ... (existing table code) -->
+
   </div>
 
   <script>
     async function insertTimesheet() {
-      const employeeID = document.getElementById('EmployeeID').value;
-      const payPeriod = document.getElementById('PayPeriod').value;
-      const hoursWorked = document.getElementById('HoursWorked').value;
+    const employeeID = document.getElementById('EmployeeID').value;
+    const payPeriod = document.getElementById('PayPeriod').value;
+    const hoursWorked = document.getElementById('HoursWorked').value;
 
-      try {
-        const response = await fetch('/insertTimesheet', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            TimeSheetID: getRandom4DigitNumber(),
-            EmployeeID: employeeID,
-            PayPeriod: payPeriod,
-            HoursWorked: hoursWorked,
-            M_Approval: 'N'  // Default M_Approval to 'N'
-          })
-        });
+    try {
+      const response = await fetch('/insertTimesheet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          TimeSheetID: getRandom4DigitNumber(),
+          EmployeeID: employeeID,
+          PayPeriod: payPeriod,
+          HoursWorked: hoursWorked,
+          M_Approval: 'N'  // Default M_Approval to 'N'
+        })
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        console.log('Response Data:', data);
+      console.log('Response Data:', data);
 
-        if (data.success) {
-          // Reload or update the table to show the new timesheet
-          fetchAndPopulateData();
-        } else {
-          console.error('Error:', data.message);
-        }
-      } catch (error) {
-        console.error('Error:', error);
+      if (data.success) {
+        // Append a new row to the existing table with the new timesheet data
+        const tableBody = document.getElementById('employeeData');
+        const newRow = tableBody.insertRow();
+        newRow.insertCell(0).textContent = payPeriod;
+        newRow.insertCell(1).textContent = hoursWorked;
+        newRow.insertCell(2).textContent = 'N';  // Default M_Approval to 'N'
+      } else {
+        console.error('Error:', data.message);
       }
+    } catch (error) {
+      console.error('Error:', error);
     }
+  }
 
     // Function to generate a random 4-digit number
     function getRandom4DigitNumber() {
