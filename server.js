@@ -385,7 +385,8 @@ connection.then(connection => {
 				updateFields.push('ManagerID = :ManagerID');
 				updateValues.ManagerID = ManagerID;
 			}
-	
+
+
 			// Check if any fields are provided for update
 			if (updateFields.length === 0) {
 				return res.json({ success: false, message: 'No fields provided for update.' });
@@ -415,11 +416,97 @@ connection.then(connection => {
 			console.error('Error modifying employee:', error);
 			return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
 		}
+
+	
+	app.post('/insertBankDetails', async (req, res) => {
+		try {
+		  const {
+			BankID,
+			EmployeeID,
+			PaymentType,
+			BANKACCTNO
+		  } = req.body;
+	  
+		  // Check for missing required fields
+		  if (!BankID || !EmployeeID || !PaymentType || !BANKACCTNO) {
+			return res.status(400).json({ error: 'Missing required fields.' });
+		  }
+	  
+		  const insertQuery = `
+			INSERT INTO BANKDETAILS (
+			  BankID,
+			EmployeeID,
+			PaymentType,
+			BANKACCTNO
+			) VALUES (
+			  :bankID,
+			  :EmployeeID,
+			  :Paymenttype,
+			  :bankAcctNo
+			)`;
+	  
+		  // Execute the INSERT statement
+		  const result = await connection.execute(insertQuery, {
+			BankID,
+			EmployeeID,
+			PaymentType,
+			BANKACCTNO
+		  }, { autoCommit: true });
+	  
+		  if (result.rowsAffected === 1) {
+			return res.json({ success: true, message: 'BankDetails inserted successfully.' });
+		  } else {
+			return res.json({ success: false, message: 'BankDetails insertion unsuccessful.' });
+		  }
+		} catch (error) {
+		  console.error('Error inserting BankDetails:', error);
+		  return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
+	  });
+
+
+
+	app.get('/bankDetailsForEmployee/:employeeID', async (req, res) => {
+		const employeeID = req.params.employeeID;
+		try {
+		  const result = await connection.execute(
+			'SELECT  EmployeeID, bankAcctNo, bankid FROM BankDetails WHERE EmployeeID = :employeeID',
+			[employeeID]
+		  );
+	  
+		  // Convert the result rows to an array of objects
+		  const bankDetails = result.rows.map(row => ({
+			EmployeeID: row[0],
+			bankAcctNo: row[1],
+			bankid: row[2]
+		  }));
+	  
+		  res.json(bankDetails);
+		} catch (error) {
+		  console.error('Error fetching data:', error);
+		  res.status(500).json({ error: 'Internal Server Error' });
+		}
+	  });
+
+	app.post('/deletebankDetail', async (req, res) => {
+		const { bankid } = req.body;
+	
+		try {
+			const result = await connection.execute(
+				'DELETE FROM bankdetails WHERE bankid = :1',
+				[bankid]
+			);
+	
+			if (result.rowsAffected === 1) {
+				res.json({ success: true, message: 'Bank Detail deleted successfully.' });
+			} else {
+				res.json({ success: false, message: 'Bank Detail not found or deletion unsuccessful.' });
+			}
+		} catch (error) {
+			console.error('Error deleting employee:', error);
+			res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
 	});
-	
-	
-
-
 	/* 
 	   Along with SELECT and UPDATE statements, you can also use insert statements to add more rows.
 	   Example: 

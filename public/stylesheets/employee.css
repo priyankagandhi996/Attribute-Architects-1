@@ -21,6 +21,10 @@ body {
     margin: 0 auto;
     padding: 20px;
   }
+  .timesheet ,.bankdetails{
+    display: none;
+  }
+
   
   h1 {
     text-align: center;

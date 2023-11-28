@@ -5,7 +5,7 @@ try {
 
   let libPath;
   if (process.platform === 'win32') {           // Windows
-    libPath = 'C:\\oracle\\instantclient_19_12';
+    libPath = 'C:\Users\priya\OneDrive\Desktop\DB\project\instantclient-basic-windows\instantclient_21_12';
   } else if (process.platform === 'darwin') {   // macOS
     console.log(process.env.HOME);
     libPath = process.env.HOME + '/Desktop/instantclient';
