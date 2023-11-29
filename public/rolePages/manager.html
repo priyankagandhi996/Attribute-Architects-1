@@ -19,6 +19,9 @@
     <form class="findEmployeeTimecards" onsubmit="event.preventDefault(); fetchAndPopulateData();">
       <button type="submit">See Employee Timesheets</button>
     </form>
+    <form class="assignProjects" onsubmit="event.preventDefault(); assignProjects();">
+      <button type="submit">Assign Projects</button>
+    </form>
 
     <table id="employeeTable">
       <thead>
@@ -32,6 +35,21 @@
         </tr>
       </thead>
       <tbody id="employeeData">
+        <!-- Table rows will be dynamically added here -->
+      </tbody>
+    </table>
+
+     <table id="projectTable">
+      <thead>
+        <tr>
+          <th>Employee ID</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Project already assigned</th>
+          <th>Project can be assigned</th>
+        </tr>
+      </thead>
+      <tbody id="projectData">
         <!-- Table rows will be dynamically added here -->
       </tbody>
     </table>
@@ -74,6 +92,7 @@
     // Handle fetch or other errors
   }
 }
+
 
 
     async function fetchAndPopulateData() {
@@ -129,6 +148,121 @@
         console.error('Error:', error);
       }
     }
+
+    async function assignProjects(){
+            const managerID = document.getElementById('ManagerID').value;
+
+      try {
+        const response = await fetch(`/employeeProjects/${managerID}`);
+        const assignedProjectsList = await response.json();
+        const response1 = await fetch(`/allprojects`);
+        const allProjects = await response1.json();
+
+        console.log('Response Data:', assignedProjectsList);
+
+        const tableBody = document.getElementById('projectData');
+        tableBody.innerHTML = '';
+        var counter = 1;
+
+        if (assignedProjectsList && assignedProjectsList.length > 0) {
+
+          assignedProjectsList.forEach((entry, index) => {
+            console.log(entry);
+            var tempallProject = allProjects;
+            assignedProjects = entry[3];
+            if(assignedProjects!=null)
+              tempallProject = tempallProject.filter( ( el ) => !assignedProjects.includes( el[1] ));
+            const container = document.createElement('span');
+            container.id = 'checkboxcontainer' + index;
+
+            tempallProject.forEach((element, index) => {
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.id = 'checkbox' + counter;  
+              checkbox.value = element[0];
+
+              const label = document.createElement('label');
+              label.htmlFor = 'checkbox' + element[0];
+              label.appendChild(document.createTextNode(element[1]));
+
+              container.appendChild(checkbox);
+              container.appendChild(label);
+              container.classList.add('checkbox-container');
+              linebreak = document.createElement("br");
+              container.appendChild(linebreak);
+              counter++;
+            });
+
+            const approveBtn = document.createElement('button');
+            approveBtn.textContent = 'Add Project';
+            approveBtn.classList.add('approveBtn');
+            approveBtn.addEventListener('click',  () => processSelectedCheckboxes(row, index));
+            container.appendChild(approveBtn);
+            const row = document.createElement('tr');
+            // console.log(container);
+            row.innerHTML = `
+                        <td>${entry[0]}</td>
+                        <td>${entry[1]}</td>
+                        <td>${entry[2]}</td>
+                        <td>${entry[3]}</td>
+                      `;
+                      row.appendChild(container);
+            tableBody.appendChild(row);            
+          });
+        } else {
+          console.error('Error:', assignedProjectsList.message || 'No data found');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+
+    function processSelectedCheckboxes(row, rowIndex) {
+      var elemToFindBy = 'tr #checkboxcontainer' + rowIndex + ' input[type="checkbox"]';
+      var checkboxes = document.querySelectorAll(elemToFindBy);
+      console.log(row);
+      const selectedCheckboxes = Array.from(checkboxes).filter(checkbox => checkbox.checked)
+      .map(function (checkbox) {
+        return checkbox.value;
+      });;
+      console.log(selectedCheckboxes);
+
+      if (selectedCheckboxes.length === 0) {
+        alert('Please select at least one checkbox.');
+      } else {
+        var employeeID = row.querySelector('td:first-child').textContent;
+        insertProjectDetails(employeeID, selectedCheckboxes);
+      }
+    }
+
+    async function insertProjectDetails(empID, projList ){
+        try {
+       const response = await fetch('/insertProjectDetails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            EmployeeID: empID,
+            projList: projList
+          })
+        });
+
+        const data = await response.json();
+
+        console.log('Response Data:', data);
+
+        if (data.success) {
+          // Reload or update the table to show the new timesheet
+          assignProjects();
+        } else {
+          console.error('Error:', data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+  }
   </script>
 </body>
 </html>

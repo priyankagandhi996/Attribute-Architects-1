@@ -416,7 +416,7 @@ connection.then(connection => {
 			console.error('Error modifying employee:', error);
 			return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
 		}
-
+	});
 	
 	app.post('/insertBankDetails', async (req, res) => {
 		try {
@@ -494,7 +494,7 @@ connection.then(connection => {
 		try {
 			const result = await connection.execute(
 				'DELETE FROM bankdetails WHERE bankid = :1',
-				[bankid]
+				[bankid], { autoCommit: true }
 			);
 	
 			if (result.rowsAffected === 1) {
@@ -516,7 +516,154 @@ connection.then(connection => {
 			[value1, value2, value3]
 		);
 	*/
-	
+	app.get('/getEmployeeDetails/:employeeID', async (req, res) => {
+		const employeeID = req.params.employeeID;
+		try {
+
+			const result = await connection.execute('SELECT * FROM EMPLOYEEP where EmployeeID = :employeeID ',[employeeID]);
+			 const employeeDetails = result.rows.map(row => ({
+			EmployeeID: row[0],
+			fname: row[1],
+			lname: row[2],
+			bdate: row[3],
+			addr: row[4],
+			email: row[5],
+			department: row[6],
+			position: row[7],
+			wage: row[8],
+			manager: row[9],
+		  }));
+	  
+		  res.json(employeeDetails);
+		} catch (error) {
+			console.error('Error fetching data:', error);
+			res.status(500).json({ error: 'Internal Server Error' });
+		}
+	});
+
+
+
+app.post('/updateEmployeeDetails', async (req, res) => {
+		const employeeID = req.body.employeeID;
+		const fname = req.body.fname;
+		const lname = req.body.lname;
+		const bdate = req.body.bdate;
+		const addr = req.body.addr;
+
+		try {
+		  // Log the formatted date before executing the SQL statement
+		  const formattedPayPeriod = new Date(bdate).toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+		  });
+		  console.log('Formatted Pay Period:', formattedPayPeriod);
+	  
+		  // Log the SQL statement
+		  console.log(employeeID);
+		  const sqlStatement = 'UPDATE Employeep SET f_name= :fname, l_name = :lname, address= :addr WHERE EmployeeID = :employeeID';
+		  console.log('Executing SQL:', sqlStatement);
+	  
+		  const result = await connection.execute(
+			sqlStatement,
+			[fname, lname, addr, employeeID], { autoCommit: true }
+		  );
+	  
+		  console.log(result);
+	  
+		  // Check if any rows were updated
+		  if (result.rowsAffected>0) {
+			res.json({ success: true, message: 'Approval updated successfully.' });
+		  } else {
+			res.json({ success: false, message: 'No rows updated. Check your conditions.' });
+		  }
+		} catch (error) {
+		  console.error('Error updating approval:', error);
+		  res.status(500).json({ error: 'Internal Server Error' });
+		}
+	  });	  
+
+app.get('/employeeProjects/:managerID', async (req, res) => {
+		const managerID = req.params.managerID;
+		try {
+		  const sqlStatement = `select employeep.employeeid, employeep.f_name, employeep.l_name,a.projects from employeep left outer join
+(select employeep.employeeid, f_name,l_name,LISTAGG(project_name, ', ') WITHIN GROUP (ORDER BY project_name) AS projects from employeep inner join worksonp
+			on employeep.employeeID=worksonp.employeeid
+			inner join e_project
+			on worksonp.projectid = e_project.projectid
+			where managerID = :managerID
+			GROUP BY employeep.employeeid, f_name, l_name) a
+            
+            on employeep.employeeid = a.employeeid            
+             where managerid = :managerID`;
+	  
+		  const result = await connection.execute(
+			sqlStatement,
+			[managerID]
+		  );
+	  
+		  res.json(result.rows);
+		} catch (error) {
+		  console.error('Error updating approval:', error);
+		  res.status(500).json({ error: 'Internal Server Error' });
+		}
+	  });	  
+
+
+	app.get('/allprojects', async (req, res) => {
+			const managerID = req.params.managerID;
+			try {
+			  const sqlStatement = `select * from e_project`;
+			  const result = await connection.execute(
+				sqlStatement
+			  );
+		  
+			  res.json(result.rows);
+			} catch (error) {
+			  console.error('Error updating approval:', error);
+			  res.status(500).json({ error: 'Internal Server Error' });
+			}
+		  });	
+
+
+	  	app.post('/insertProjectDetails', async (req, res) => {
+			try {
+			  const {
+	            EmployeeID,
+	            projList
+			  } = req.body;
+		  
+			  // Check for missing required fields
+			  if (!EmployeeID || !projList) {
+				return res.status(400).json({ error: 'Missing required fields.' });
+			  }
+		  
+
+			  for (const projectId of projList) {
+			  	  var insertQuery = `INSERT INTO worksonp (EmployeeID, ProjectID) VALUES (:employeeIdValue, :projectId)`;
+
+			      const bindParams = {
+			        employeeIdValue: EmployeeID,
+			        projectId: projectId
+			      };
+
+			      console.log(bindParams);
+
+				  // Execute the INSERT statement
+				  const result = await connection.execute(insertQuery, bindParams, { autoCommit: true });
+			  
+				  if (result.rowsAffected === 1) {
+					return res.json({ success: true, message: 'BankDetails inserted successfully.' });
+				  } else {
+					return res.json({ success: false, message: 'BankDetails insertion unsuccessful.' });
+				  }
+
+				}
+			} catch (error) {
+			  console.error('Error inserting BankDetails:', error);
+			  return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+			}
+  });  
 });
 
 app.listen(PORT);
