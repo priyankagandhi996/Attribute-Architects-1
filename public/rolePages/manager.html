@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Manager Timesheets</title>
   <link rel="stylesheet" href="../stylesheets/manager.css">
+    <link rel="stylesheet" href="/stylesheets/homepage.css">
 </head>
 <body>
   <div class="container">
@@ -16,12 +17,14 @@
       </div>
     </div>
     
+     <div class="optionsContainer" style="margin:10px">
     <form class="findEmployeeTimecards" onsubmit="event.preventDefault(); fetchAndPopulateData();">
       <button type="submit">See Employee Timesheets</button>
     </form>
     <form class="assignProjects" onsubmit="event.preventDefault(); assignProjects();">
       <button type="submit">Assign Projects</button>
     </form>
+    </div>
 
     <table id="employeeTable">
       <thead>
@@ -93,9 +96,30 @@
   }
 }
 
+async function showTimeSheet() {
+    var projectTable = document.getElementById("projectTable");
+      projectTable.style.display = "none";
+    var x = document.getElementById("employeeTable");
+      x.style.display = "block";
+    hideProfileDetails();
+  }
+
+async function showAssignProjects() {
+    var employeeTable = document.getElementById("employeeTable");
+      employeeTable.style.display = "none";
+    var x = document.getElementById("projectTable");
+      x.style.display = "block";
+  }
+
+  async function hideTimeSheet() {
+     var employeeTable = document.getElementById("employeeTable");
+      employeeTable.style.display = "none";
+    }
+
 
 
     async function fetchAndPopulateData() {
+      showTimeSheet();
       const managerID = document.getElementById('ManagerID').value;
 
       try {
@@ -150,6 +174,7 @@
     }
 
     async function assignProjects(){
+      showAssignProjects();
             const managerID = document.getElementById('ManagerID').value;
 
       try {

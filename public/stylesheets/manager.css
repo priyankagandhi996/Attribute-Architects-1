@@ -100,4 +100,6 @@ body {
     background-color: #c82333;
   }
   
-  
+   #employeeTable, #projectTable{
+    display: none;
+  }

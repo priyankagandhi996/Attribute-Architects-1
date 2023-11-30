@@ -4,11 +4,14 @@
   <meta charset="UTF-8">
   <title>Employee Timesheets</title>
   <link rel="stylesheet" href="../stylesheets/employee.css">
+  <link rel="stylesheet" href="/stylesheets/homepage.css">
+  
+
 </head>
 <body>
   <div class="optionsContainer">
-    <button onclick="showTimeSheet()"> TimeSheet </button>
-    <button onclick="showBankDetails()"> Personal Details </button>
+    <button class="buttonOption" onclick="showTimeSheet()"> TimeSheet </button>
+    <button class="buttonOption" onclick="showBankDetails()"> Personal Details </button>
   </div>
 
   <div class="container timesheet">
@@ -59,16 +62,16 @@
     <h1>Profile Details</h1>
 
     <div class="form-row">
-        <div class="form-group">
+        <div class="form-group optionsContainer">
           <label for="EmployeeID3">Enter EmployeeID:</label>
-          <input type="text" id="EmployeeID3">
+          <input type="text" id="EmployeeID3" required>
            <button type="submit" onclick="searchEmployee()">Search Employee</button>
         </div>
       </div>
 
 <div class="profileDetailForm" id="profileDetailForm">
 
-      <form class="profileDetailForm" id="profileDetailForm" onsubmit="event.preventDefault(); updateEmployeeDetails();">
+      <form class="profileDetailForm " id="profileDetailForm" onsubmit="event.preventDefault(); updateEmployeeDetails();">
         <div class="form-row">
           <div class="form-group">
             <label for="EmployeeID4">Employee ID:</label>
@@ -113,7 +116,9 @@
             <input type="text" id="ManagerID" disabled >
           </div>
         </div>
-        <button type="submit">Update Details</button>
+        <div class="optionsContainer">
+        <button type="submit">Update Details</button>          
+        </div>
       </form>
 
    <h1>Employee Bank Information</h1>
@@ -131,13 +136,13 @@
       </table>
 
       <form class="addBankDetailsForm" onsubmit="event.preventDefault(); insertBankDetails();">
-        <div class="form-row">
+        <div class="form-row optionsContainer">
           <div class="form-group">
             <label for="AccNumber">Account Number</label>
             <input type="text" id="AccNumber">
           </div>
-        </div>
         <button type="submit">Insert Bank Details</button>
+         </div>
       </form>
     </div>
 
