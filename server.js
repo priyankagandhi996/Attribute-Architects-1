@@ -75,7 +75,8 @@ connection.then(connection => {
 			  E.F_Name AS "First Name", \
 			  E.L_Name AS "Last Name", \
 			  T.PayPeriod, \
-			  T.HoursWorked \
+			  T.HoursWorked, \
+			  T.TimeSheetID \
 			FROM TIMESHEET T \
 			JOIN EMPLOYEEP E ON T.EmployeeID = E.EmployeeID \
 			WHERE E.ManagerID = :managerID AND T.M_Approval = \'N\'',
@@ -87,7 +88,8 @@ connection.then(connection => {
 			FirstName: row[1],
 			LastName: row[2],
 			PayPeriod: row[3],
-			HoursWorked: row[4]
+			HoursWorked: row[4],
+			TimeSheetID: row[5]
 		  }));
 	  
 		  res.json(timesheetData);
@@ -167,6 +169,28 @@ connection.then(connection => {
 		}
 	 	 });	  
 
+		  app.post('/rejectTimesheet', async (req, res) => {
+			const timesheetID = req.body.timesheetID;
+			try {
+	
+			  console.log('Executing SQL statement:', 'UPDATE TIMESHEET SET M_Approval = \'N\' WHERE TimesheetID = :timesheetID', [timesheetID]);
+	
+			  const sqlStatement = await connection.execute(
+					'UPDATE TIMESHEET SET M_Approval = \'Y\' WHERE TimesheetID = :timesheetID',
+					  [timesheetID]
+			  );
+	
+			  if (sqlStatement.rowsAffected === 1) {
+				res.json({ success: true, message: 'Timesheet rejected successfully.' });
+			} else {
+				res.json({ success: false, message: 'Timesheet not found or rejection unsuccessful.' });
+			}
+			} catch (error) {
+				console.error('Error rejecting timesheet:', error);
+				res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+			}
+		});	
+
 	  app.post('/deleteEmployee', async (req, res) => {
 		const { employeeID } = req.body;
 	
@@ -244,6 +268,9 @@ connection.then(connection => {
 		const timesheetID = req.body.timesheetID;
 	
 		try {
+
+			console.log('Print timesheet ID: ' + timesheetID);
+
 			const deleteResult = await connection.execute(
 				'DELETE FROM TIMESHEET WHERE TimesheetID = :timesheetID',
 				[timesheetID]
