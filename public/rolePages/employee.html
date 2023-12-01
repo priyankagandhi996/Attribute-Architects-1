@@ -48,6 +48,7 @@
           <th>Pay Period</th>
           <th>Hours Worked</th>
           <th>Approved</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody id="employeeData">
@@ -200,12 +201,23 @@
           tableBody.innerHTML = '';
 
           // Loop through the retrieved data and append rows to the table
-          data.forEach(entry => {
-            const row = tableBody.insertRow();
-            row.insertCell(0).textContent = entry.PayPeriod;
-            row.insertCell(1).textContent = entry.HoursWorked;
-            row.insertCell(2).textContent = entry.M_Approval;
-          });
+          // Inside the fetchAndPopulateData function
+// Loop through the retrieved data and append rows to the table
+        data.forEach(entry => {
+          const row = tableBody.insertRow();
+          row.insertCell(0).textContent = entry.PayPeriod;
+          row.insertCell(1).textContent = entry.HoursWorked;
+          row.insertCell(2).textContent = entry.M_Approval;
+
+          // Create a delete button and attach a click event
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Delete';
+          deleteButton.addEventListener('click', () => deleteTimesheet(entry.TimeSheetID));
+
+          // Add the delete button to the row
+          row.insertCell(3).appendChild(deleteButton);
+        });
+
         } else {
           console.error('Error:', data.message || 'No data found');
         }
@@ -213,6 +225,34 @@
         console.error('Error:', error);
       }
     }
+
+    async function deleteTimesheet(timesheetID) {
+    try {
+      const response = await fetch('/deleteTimesheet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          timesheetID: timesheetID,
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log('Response Data:', data);
+
+      if (data.success) {
+        // Reload or update the table to reflect the deletion
+        fetchAndPopulateData();
+      } else {
+        console.error('Error:', data.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
 
   async function showTimeSheet() {
     var bankDetail = document.getElementsByClassName("bankdetails");

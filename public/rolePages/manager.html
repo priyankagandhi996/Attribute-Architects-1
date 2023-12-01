@@ -16,10 +16,10 @@
       </div>
     </div>
     
-    <form class="findEmployeeTimecards" onsubmit="event.preventDefault(); fetchAndPopulateData();">
+    <form class="findEmployeeTimecards" id="findEmployeeForm">
       <button type="submit">See Employee Timesheets</button>
     </form>
-    <form class="assignProjects" onsubmit="event.preventDefault(); assignProjects();">
+    <form class="assignProjects" id="assignProjectsForm">
       <button type="submit">Assign Projects</button>
     </form>
 
@@ -56,42 +56,32 @@
   </div>
 
   <script>
-    async function updateApproval(employeeID, payPeriod) {
-  try {
-    console.log('Updating approval for Employee ID:', employeeID, 'and Pay Period:', payPeriod);
 
-    // Assuming payPeriod is in ISO 8601 format, convert it to 'YYYY-MM-DD'
-    const formattedPayPeriod = new Date(payPeriod).toLocaleDateString('en-US');
-    console.log(formattedPayPeriod);
+  document.getElementById('findEmployeeForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    fetchAndPopulateData();
+  });
 
-    console.log('Formatted Pay Period:', formattedPayPeriod);
-    console.log('Employee ID:', employeeID);
+  document.getElementById('assignProjectsForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    assignProjects();
+  });
 
-    const response = await fetch('/approveTimesheet', {
+  function approveTimesheet(timesheetID) {
+    fetch('/approveTimesheet', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        employeeID: employeeID,
-        payPeriod: formattedPayPeriod,
-      }),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      console.log(result.message);
-      // Optionally, you can perform additional actions after a successful update
-    } else {
-      console.error(result.message);
-      // Handle unsuccessful update
-    }
-  } catch (error) {
-    console.error('Error updating approval:', error);
-    // Handle fetch or other errors
+      body: JSON.stringify({ timesheetID }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      fetchAndPopulateData();
+    })
+    .catch(error => console.error('Error approving timesheet:', error));
   }
-}
 
 
 
@@ -129,10 +119,11 @@
             rejectBtn.classList.add('rejectBtn');
             actionsCell.appendChild(rejectBtn);
 
+            const timesheetID = entry.TimesheetID; // Change this to match your actual property name
+            const employeeID = entry.EmployeeID;
+
             approveBtn.addEventListener('click', async () => {
-              const employeeID = row.cells[0].textContent;
-              const payPeriod = row.cells[3].textContent;
-              await updateApproval(employeeID, payPeriod);
+              await approveTimesheet(timesheetID);
               console.log('Approval updated for Employee ID:', employeeID);
             });
 

@@ -47,6 +47,23 @@ connection.then(connection => {
 	});
 
 	// GET PATHS TO JSON FILES & CREATIVE FILES
+	app.get('/employeeExists/:employeeID', async (req, res) => {
+		const employeeID = req.params.employeeID;
+	
+		try {
+			const result = await connection.execute(
+				'SELECT COUNT(*) FROM EMPLOYEE WHERE EmployeeID = :employeeID',
+				[employeeID]
+			);
+	
+			const employeeExists = result.rows[0][0] > 0;
+	
+			res.json({ exists: employeeExists });
+		} catch (error) {
+			console.error('Error checking employee existence:', error);
+			res.status(500).json({ error: 'Internal Server Error' });
+		}
+	});	
 
 	app.get('/timesheets/:managerID', async (req, res) => {
 		const managerID = req.params.managerID;
@@ -128,51 +145,40 @@ connection.then(connection => {
     // SET ROUTES TO GET/UPDATE/INSERT DATA
 
 	app.post('/approveTimesheet', async (req, res) => {
-		const employeeID = req.body.employeeID;
-		const payPeriod = req.body.payPeriod;
+		const timesheetID = req.body.timesheetID;
 	  
 		try {
-		  // Log the formatted date before executing the SQL statement
-		  const formattedPayPeriod = new Date(payPeriod).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: '2-digit',
-			day: '2-digit',
-		  });
-		  console.log('Formatted Pay Period:', formattedPayPeriod);
-	  
-		  // Log the SQL statement
-		  const sqlStatement = 'UPDATE TIMESHEET SET M_Approval = \'Y\' WHERE EmployeeID = :employeeID AND PayPeriod = TO_DATE(:payPeriod, \'MM/DD/YYYY\')';
-		  console.log('Executing SQL:', sqlStatement);
-	  
-		  const result = await connection.execute(
-			sqlStatement,
-			[employeeID, formattedPayPeriod]
-		  );
-	  
-		  console.log(result);
-	  
-		  // Check if any rows were updated
-		  if (result.rowsAffected && result.rowsAffected[0] > 0) {
-			res.json({ success: true, message: 'Approval updated successfully.' });
-		  } else {
-			res.json({ success: false, message: 'No rows updated. Check your conditions.' });
-		  }
-		} catch (error) {
-		  console.error('Error updating approval:', error);
-		  res.status(500).json({ error: 'Internal Server Error' });
-		}
-	  });	  
 
-	app.post('/deleteEmployee', async (req, res) => {
+		  console.log('Executing SQL statement:', 'UPDATE TIMESHEET SET M_Approval = \'Y\' WHERE TimesheetID = :timesheetID', [timesheetID]);
+
+		  const sqlStatement = await connection.execute(
+				'UPDATE TIMESHEET SET M_Approval = \'Y\' WHERE TimesheetID = :timesheetID',
+		  		[timesheetID]
+		  );
+
+		  if (sqlStatement.rowsAffected === 1) {
+			res.json({ success: true, message: 'Timesheet approved successfully.' });
+		} else {
+			res.json({ success: false, message: 'Timesheet not found or approval unsuccessful.' });
+		}
+		} catch (error) {
+			console.error('Error approving timesheet:', error);
+			res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
+	 	 });	  
+
+	  app.post('/deleteEmployee', async (req, res) => {
 		const { employeeID } = req.body;
 	
 		try {
-			const result = await connection.execute(
+
+			// Then, delete the employee
+			const deleteResult = await connection.execute(
 				'DELETE FROM EMPLOYEEP WHERE EmployeeID = :1',
 				[employeeID]
 			);
 	
-			if (result.rowsAffected === 1) {
+			if (deleteResult.rowsAffected === 1) {
 				res.json({ success: true, message: 'Employee deleted successfully.' });
 			} else {
 				res.json({ success: false, message: 'Employee not found or deletion unsuccessful.' });
@@ -182,6 +188,7 @@ connection.then(connection => {
 			res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
 		}
 	});
+	
 
 	app.post('/insertTimesheet', async (req, res) => {
 		try {
@@ -232,8 +239,28 @@ connection.then(connection => {
 		  return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
 		}
 	  });
-	  
 
+	  app.post('/deleteTimesheet', async (req, res) => {
+		const timesheetID = req.body.timesheetID;
+	
+		try {
+			const deleteResult = await connection.execute(
+				'DELETE FROM TIMESHEET WHERE TimesheetID = :timesheetID',
+				[timesheetID]
+			);
+	
+			if (deleteResult.rowsAffected === 1) {
+				res.json({ success: true, message: 'Timesheet deleted successfully.' });
+			} else {
+				res.json({ success: false, message: 'Timesheet not found or deletion unsuccessful.' });
+			}
+		} catch (error) {
+			console.error('Error deleting timesheet:', error);
+			res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
+	});
+	
+	  
 	app.post('/insertEmployee', async (req, res) => {
 		try {
 			// Capture the input fields from the request body

@@ -67,6 +67,7 @@
           <th>Department ID</th>
           <th>Position</th>
           <th>Wage</th>
+          <th>Manager ID</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -92,6 +93,7 @@
                         <td>${employee[6]}</td>
                         <td>${employee[7]}</td>
                         <td>${employee[8]}</td>
+                        <td>${employee[9]}</td>
                         <td>
                             <button class="deleteBtn" onclick="deleteEmployee(${employee[0]})">Delete</button>
                         </td>
@@ -120,6 +122,7 @@
         .catch(error => console.error('Error deleting employee:', error));
     }
 
+
     document.getElementById('addEmployeeForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
@@ -133,6 +136,40 @@
         const Position_1 = document.getElementById('Position').value;
         const Wage = document.getElementById('Wage').value;
         const ManagerID = document.getElementById('ManagerID').value;
+
+        const integerPattern = /^-?\d+$/;
+        if (!(integerPattern.test(EmployeeID)) || parseInt(EmployeeID) > 9999) {
+            alert('Please enter a valid Employee ID');
+            return;
+        }
+
+        if (Email !== '') {
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(Email)) {
+                alert('Please enter a valid email address');
+                return;
+            }
+        }
+
+        if(F_Name.length > 15) {
+          alert('First name is ' + (F_Name.length - 15) + ' characters too long.');
+          return;
+        }
+
+        if(L_Name.length > 15) {
+          alert('Last name is ' + (L_Name.length - 15) + ' characters too long.');
+          return;
+        }
+
+        if (Address.length > 200) {
+          alert('Address is ' + (Address.length - 200) + ' characters too long.');
+          return;
+        }
+
+        if (Position_1.length > 25) {
+          alert('Position is ' + (Position_1.length - 25) + ' characters too long.');
+          return;
+        }
 
         if (EmployeeID !== '' && F_Name !== '' && L_Name !== ''
             && B_Date !== '' && Address !== '' && Email !== '' && DepartmentID !== ''
