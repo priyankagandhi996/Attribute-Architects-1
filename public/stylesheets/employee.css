@@ -112,6 +112,14 @@ body {
     border-radius: 4px;
   }
   
+  .deleteBtn {
+    background-color: red;
+    color: white; /* Text color to ensure visibility */
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+
   .deleteBtn:hover {
     background-color: #c82333;
   }
