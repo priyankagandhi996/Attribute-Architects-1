@@ -283,6 +283,16 @@
     var x = document.getElementsByClassName("profileDetailForm");
       x[0].style.display = "none";
     }
+  async function showBankDetailsForm() {
+    var x = document.getElementsByClassName("addBankDetailsForm");
+      x[0].style.display = "block";
+    }
+
+  async function hideBankDetailsForm() {
+    var x = document.getElementsByClassName("addBankDetailsForm");
+      x[0].style.display = "none";
+    }
+
 
   async function insertBankDetails() {
       const employeeID = document.getElementById('EmployeeID3').value;
@@ -326,12 +336,12 @@
         const data = await response.json();
 
         console.log('Response Data:', data);
+        const tableBody = document.getElementById('employeeBankDetails');
+        tableBody.innerHTML = '';
 
         if (data && data.length > 0) {
           // Clear existing table rows
-          const tableBody = document.getElementById('employeeBankDetails');
-          tableBody.innerHTML = '';
-
+          
           // Loop through the retrieved data and append rows to the table
           data.forEach(entry => {
             const row = document.createElement('tr');
@@ -343,8 +353,10 @@
                         </td>`;
                         tableBody.appendChild(row);
           });
+          hideBankDetailsForm();
         } else {
           console.error('Error:', data.message || 'No data found');
+          showBankDetailsForm();
         }
       } catch (error) {
         console.error('Error:', error);
@@ -365,6 +377,8 @@
             fetchAndPopulateBankDetails();
         })
         .catch(error => console.error('Error deleting bank detail:', error));
+        fetchAndPopulateBankDetails();
+
     }
 
 
@@ -379,7 +393,21 @@
         window.alert("Fields cannot be empty");
         return;
       }
-      return;
+      if(fname.length > 15) {
+          alert('First name is ' + (fname.length - 15) + ' characters too long.');
+          return;
+        }
+
+        if(lname.length > 15) {
+          alert('Last name is ' + (lname.length - 15) + ' characters too long.');
+          return;
+        }
+
+        if (addr.length > 200) {
+          alert('Address is ' + (addr.length - 200) + ' characters too long.');
+          return;
+        }
+
 
       try {
         const response = await fetch('/updateEmployeeDetails', {
@@ -412,8 +440,23 @@
 
     }
 
+    async function checkValidEmployeeId(){
+      const employeeID = document.getElementById('EmployeeID3').value;
+      console.log(employeeID);
+      if(!isNaN(employeeID)){
+        return true;
+      }
+      return false;
+    }
+
     async function searchEmployee(){
       const employeeID = document.getElementById('EmployeeID3').value;
+      var temp = await checkValidEmployeeId();
+      console.log(temp)
+      if(!temp){
+        alert("Please eneter valid employee if (numbers only)");
+        return;
+      }
 
       try {
         const response = await fetch(`/getEmployeeDetails/${employeeID}`);
