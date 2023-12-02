@@ -20,7 +20,7 @@
     <div class="form-row">
       <div class="form-group">
         <label for="EmployeeID">Enter EmployeeID:</label>
-        <input type="text" id="EmployeeID">
+        <input type="text" id="EmployeeID" pattern="[1-9]{1}[0-9]{9}">
       </div>
     </div>
 
@@ -87,7 +87,7 @@
           </div>
           <div class="form-group">
             <label for="B_Date">Birth Date:</label>
-            <input type="text" id="B_Date">
+            <input type="date" id="B_Date">
           </div>
           <div class="form-group">
             <label for="Address">Address:</label>
@@ -139,7 +139,7 @@
         <div class="form-row optionsContainer">
           <div class="form-group">
             <label for="AccNumber">Account Number</label>
-            <input type="text" id="AccNumber">
+            <input type="text" id="AccNumber" minlength="10" maxlength="10" pattern="[1-9]{1}[0-9]{9}">
           </div>
         <button type="submit">Insert Bank Details</button>
          </div>
@@ -334,6 +334,12 @@
       const lname = document.getElementById('L_Name').value; 
       const bdate = document.getElementById('B_Date').value; 
       const addr = document.getElementById('Address').value; 
+      console.log(fname);
+      if(lname==='' || fname==='' || addr==='' || bdate===''){
+        window.alert("Fields cannot be empty");
+        return;
+      }
+      return;
 
       try {
         const response = await fetch('/updateEmployeeDetails', {
@@ -384,7 +390,10 @@
             document.getElementById("EmployeeID4").value = entry.EmployeeID;
             document.getElementById("F_Name").value = entry.fname;
             document.getElementById("L_Name").value = entry.lname;
-            document.getElementById("B_Date").value = entry.bdate;
+            const d = new Date(entry.bdate).toISOString().split('T')[0];
+            console.log(d);
+            // update birthdate in database as well.
+            document.getElementById("B_Date").value = d;
             document.getElementById("Address").value = entry.addr;
             document.getElementById("Email").value = entry.email;
             document.getElementById("DepartmentID").value = entry.EmployeeID;
