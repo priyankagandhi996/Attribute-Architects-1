@@ -33,7 +33,7 @@ CREATE TABLE EMPLOYEEP
     Position_1 VARCHAR(25),
     Wage FLOAT NOT NULL,
     ManagerID INT,
-    EmployeeStatus VARCHAR(1), CHECK(EmployeeStatus IN ('A', 'T','L')),
+    EmployeeStatus VARCHAR(1), CHECK(EmployeeStatus IN ('A', 'T')),
     PRIMARY KEY (EmployeeID),
     FOREIGN KEY (DepartmentID) REFERENCES DEPARTMENTP(DepartmentID),
     FOREIGN KEY (ManagerID) REFERENCES EMPLOYEEP(EmployeeID)
