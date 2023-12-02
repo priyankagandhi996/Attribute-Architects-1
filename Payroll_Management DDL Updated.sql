@@ -1,6 +1,13 @@
 --------------------------------------------------------
---  File created - Tuesday-November-06-2023  
+--  File updated - Saturday-December-02-2023  
 --------------------------------------------------------
+DROP TABLE WORKSONP;
+DROP TABLE E_PROJECT;
+DROP TABLE BANKDETAILS;
+DROP TABLE PAYSTUB;
+DROP TABLE TIMESHEET;
+DROP TABLE EMPLOYEEP;
+DROP TABLE DEPARTMENTP;
 --------------------------------------------------------
 --  DDL for Table Department
 --------------------------------------------------------
@@ -26,6 +33,7 @@ CREATE TABLE EMPLOYEEP
     Position_1 VARCHAR(25),
     Wage FLOAT NOT NULL,
     ManagerID INT,
+    EmployeeStatus VARCHAR(1), CHECK(EmployeeStatus IN ('A', 'T')),
     PRIMARY KEY (EmployeeID),
     FOREIGN KEY (DepartmentID) REFERENCES DEPARTMENTP(DepartmentID),
     FOREIGN KEY (ManagerID) REFERENCES EMPLOYEEP(EmployeeID)
@@ -40,7 +48,7 @@ CREATE TABLE TIMESHEET
     EmployeeID INT NOT NULL,
     PayPeriod DATE NOT NULL,
     HoursWorked FLOAT CHECK (HoursWorked <= 744),
-    M_Approval VARCHAR(1) CHECK(M_Approval IN ('Y', 'N')),
+    M_Approval VARCHAR(1) CHECK(M_Approval IN ('Y', 'N','P')),
     PRIMARY KEY (TimeSheetID),
     FOREIGN KEY (EmployeeID) REFERENCES EMPLOYEEP(EmployeeID)
 );
@@ -69,7 +77,7 @@ CREATE TABLE BANKDETAILS
     EmployeeID INT NOT NULL,
     PaymentType VARCHAR(15) CHECK (PaymentType IN ('Direct Deposit', 'Check')),
     BankAcctNo VARCHAR(10), -- Changed from NUMBER(10)
-    PRIMARY KEY (BankID),
+    PRIMARY KEY (BankID,EmployeeID),
     FOREIGN KEY (EmployeeID) REFERENCES EMPLOYEEP(EmployeeID) ON DELETE CASCADE
 );
 
