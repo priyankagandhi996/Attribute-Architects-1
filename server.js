@@ -16,6 +16,7 @@ var fs = require('fs');
 var express = require('express');
 const app = express();
 const path = require('path');
+const oracledb = require('oracledb');
 var connection = require('./connectToDB.js'); // connect to DB
 var bodyParser = require('body-parser'); // middleware
 
@@ -75,7 +76,8 @@ connection.then(connection => {
 			  E.F_Name AS "First Name", \
 			  E.L_Name AS "Last Name", \
 			  T.PayPeriod, \
-			  T.HoursWorked \
+			  T.HoursWorked, \
+			  T.TimeSheetID \
 			FROM TIMESHEET T \
 			JOIN EMPLOYEEP E ON T.EmployeeID = E.EmployeeID \
 			WHERE E.ManagerID = :managerID AND T.M_Approval = \'N\'',
@@ -87,7 +89,8 @@ connection.then(connection => {
 			FirstName: row[1],
 			LastName: row[2],
 			PayPeriod: row[3],
-			HoursWorked: row[4]
+			HoursWorked: row[4],
+			TimeSheetID: row[5]
 		  }));
 	  
 		  res.json(timesheetData);
@@ -96,6 +99,36 @@ connection.then(connection => {
 		  res.status(500).json({ error: 'Internal Server Error' });
 		}
 	  });	  
+
+	  app.get('/payrollSummary/:payPeriod', async (req, res) => {
+		const payPeriod = req.params.payPeriod;
+	
+		try {
+			const bindings = {
+				p_PayPeriod: payPeriod,
+				p_EmployeeCount: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+				p_GrossPaySum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+				p_DeductionsSum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+				p_NetPaySum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+			};
+	
+			const result = await connection.execute(
+				'BEGIN Calc_PayrollSummary(:p_PayPeriod); END;',
+				bindings
+			);
+	
+			console.log('Number of Employees with Paystubs:', result.outBinds.p_EmployeeCount);
+			console.log('Total Gross Pay:', result.outBinds.p_GrossPaySum);
+			console.log('Total Deductions:', result.outBinds.p_DeductionsSum);
+			console.log('Total Net Pay:', result.outBinds.p_NetPaySum);
+	
+			// Handle the result and send the appropriate response to the client
+	
+		} catch (error) {
+			console.error('Error fetching data:', error);
+			res.status(500).json({ error: 'Internal Server Error' });
+		}
+		});
 	  
 	app.get('/timesheetsForEmployees/:employeeID', async (req, res) => {
 		const employeeID = req.params.employeeID;
@@ -132,6 +165,39 @@ connection.then(connection => {
 		}
 	});
 
+	app.get('/paystub/:employeeID', async (req, res) => {
+		const employeeID = req.params.employeeID;
+	  
+		try {
+		  const result = await connection.execute(`
+			SELECT PayStub.*, Timesheet.HoursWorked, Timesheet.PayPeriod
+			FROM PayStub
+			JOIN Timesheet ON PayStub.TimeSheetID = Timesheet.TimeSheetID
+			WHERE Timesheet.EmployeeID = :employeeID
+		  `, [employeeID]); // Use named bind variable
+
+
+		  console.log('SQL Query:', result.sql); // Log the SQL query
+		  console.log('SQL Result:', result.rows); // Log the result data
+	  
+		  const paystubData = result.rows.map(row => ({
+			StubID: row[0],
+			TimeSheetID: row[1],
+			OtHoursWorked: row[2],
+			GrossPay: row[3],
+			Deductions: row[4],
+			NetPay: row[5],
+			HoursWorked: row[6],
+			PayPeriod: row[7]
+		  }));
+	  
+		  res.json(paystubData);
+		} catch (error) {
+		  console.error('Error fetching data:', error);
+		  res.status(500).json({ error: 'Internal Server Error', details: error.message });
+		}
+	  });
+
 	app.get('/employees', async (req, res) => {
 		try {
 			const result = await connection.execute('SELECT * FROM EMPLOYEEP');
@@ -167,6 +233,28 @@ connection.then(connection => {
 		}
 	 	 });	  
 
+		  app.post('/rejectTimesheet', async (req, res) => {
+			const timesheetID = req.body.timesheetID;
+			try {
+	
+			  console.log('Executing SQL statement:', 'UPDATE TIMESHEET SET M_Approval = \'N\' WHERE TimesheetID = :timesheetID', [timesheetID]);
+	
+			  const sqlStatement = await connection.execute(
+					'UPDATE TIMESHEET SET M_Approval = \'Y\' WHERE TimesheetID = :timesheetID',
+					  [timesheetID]
+			  );
+	
+			  if (sqlStatement.rowsAffected === 1) {
+				res.json({ success: true, message: 'Timesheet rejected successfully.' });
+			} else {
+				res.json({ success: false, message: 'Timesheet not found or rejection unsuccessful.' });
+			}
+			} catch (error) {
+				console.error('Error rejecting timesheet:', error);
+				res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+			}
+		});	
+
 	  app.post('/deleteEmployee', async (req, res) => {
 		const { employeeID } = req.body;
 	
@@ -189,6 +277,10 @@ connection.then(connection => {
 		}
 	});
 	
+
+	app.post('/calcPayrollSummary', async (req, res) => {
+
+	});
 
 	app.post('/insertTimesheet', async (req, res) => {
 		try {
@@ -240,10 +332,33 @@ connection.then(connection => {
 		}
 	  });
 
+	  app.post('/createPayStub/', async (req, res) => {
+		const timesheetID = req.body.timesheetID;
+
+		try {
+			const createPaystub = await connection.execute(
+				'execute Calc_PayStub(:timesheetID);',
+				[timesheetID]
+			);
+
+			if(createPaystub.rowsAffected === 1) {
+				res.json({ success: true, message: 'Paystub created successfully'});
+			} else {
+				res.json({ success: false, message: 'Paystub creation unsuccessful.' });
+			}
+		} catch(error) {
+			console.error('Error creating paystub:', error);
+			res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
+	  });
+
 	  app.post('/deleteTimesheet', async (req, res) => {
 		const timesheetID = req.body.timesheetID;
 	
 		try {
+
+			console.log('Print timesheet ID: ' + timesheetID);
+
 			const deleteResult = await connection.execute(
 				'DELETE FROM TIMESHEET WHERE TimesheetID = :timesheetID',
 				[timesheetID]

@@ -9,6 +9,11 @@
 
 </head>
 <body>
+
+  <a href="paystub.html">
+    <button>Go to Paystubs</button>
+  </a>
+
   <div class="optionsContainer">
     <button class="buttonOption" onclick="showTimeSheet()"> TimeSheet </button>
     <button class="buttonOption" onclick="showBankDetails()"> Personal Details </button>
@@ -150,40 +155,93 @@
     </div>   
 
   <script>
-    async function insertTimesheet() {
-      const employeeID = document.getElementById('EmployeeID').value;
-      const payPeriod = document.getElementById('PayPeriod').value;
-      const hoursWorked = document.getElementById('HoursWorked').value;
 
-      try {
-        const response = await fetch('/insertTimesheet', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            TimeSheetID: getRandom4DigitNumber(),
-            EmployeeID: employeeID,
-            PayPeriod: payPeriod,
-            HoursWorked: hoursWorked,
-            M_Approval: 'N'  // Default M_Approval to 'N'
-          })
-        });
-
-        const data = await response.json();
-
-        console.log('Response Data:', data);
-
-        if (data.success) {
-          // Reload or update the table to show the new timesheet
-          fetchAndPopulateData();
-        } else {
-          console.error('Error:', data.message);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
+    function goToPaystubs() {
+      window.location.href = 'paystub.html';
     }
+
+    async function insertTimesheet() {
+  const employeeID = document.getElementById('EmployeeID').value;
+  const payPeriod = document.getElementById('PayPeriod').value;
+  const hoursWorked = document.getElementById('HoursWorked').value;
+
+  var dateFormat = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateFormat.test(payPeriod)) {
+    alert('Please enter a date in the following format: YYYY-MM-DD');
+    return;
+  }
+
+  const integerPattern = /^-?\d+$/;
+  if (!integerPattern.test(hoursWorked)) {
+    alert('Please enter a valid number.');
+    return;
+  }
+
+  var dayPart = payPeriod.substring((payPeriod.length - 2), payPeriod.length);
+  if (dayPart !== '01') {
+    alert('Pay Period must be on the first day of the month (YYYY-MM-01)');
+    return;
+  }
+
+  try {
+    const response = await fetch('/insertTimesheet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        TimeSheetID: getRandom4DigitNumber(),
+        EmployeeID: employeeID,
+        PayPeriod: payPeriod,
+        HoursWorked: hoursWorked,
+        M_Approval: 'N'  // Default M_Approval to 'N'
+      })
+    });
+
+    const data = await response.json();
+
+    console.log('Response Data:', data);
+
+    if (data.success) {
+      // Successfully inserted timesheet, now create pay stub
+      await createPayStub(data.timesheetID);
+
+      // Reload or update the table to show the new timesheet
+      fetchAndPopulateData();
+    } else {
+      console.error('Error:', data.message);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+    async function createPayStub(timesheetID) {
+  try {
+    const response = await fetch('/createPayStub', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        timesheetID: timesheetID
+      })
+    });
+
+    const paystubData = await response.json();
+
+    console.log('Paystub Data:', paystubData);
+
+    if (paystubData.success) {
+      // Display a success message or update UI as needed
+      console.log('Paystub created successfully');
+    } else {
+      console.error('Error creating paystub:', paystubData.message);
+    }
+  } catch (error) {
+    console.error('Error creating paystub:', error);
+  }
+}
 
     // Function to generate a random 4-digit number
     function getRandom4DigitNumber() {

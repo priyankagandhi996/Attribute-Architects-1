@@ -113,7 +113,49 @@ async function showAssignProjects() {
       employeeTable.style.display = "none";
     }
 
+    async function checkValidEmployeeId(){
+      const managerID = document.getElementById('ManagerID').value;
+      if(!isNaN(managerID)){
+        return true;
+      }
+      return false;
+    }
 
+async function showTimeSheet() {
+    var projectTable = document.getElementById("projectTable");
+      projectTable.style.display = "none";
+    var x = document.getElementById("employeeTable");
+      x.style.display = "block";
+    hideProfileDetails();
+  }
+
+async function showAssignProjects() {
+    var employeeTable = document.getElementById("employeeTable");
+      employeeTable.style.display = "none";
+    var x = document.getElementById("projectTable");
+      x.style.display = "block";
+  }
+
+  async function hideTimeSheet() {
+     var employeeTable = document.getElementById("employeeTable");
+      employeeTable.style.display = "none";
+    }
+
+  function rejectTimesheet(timesheetID) {
+    fetch('/rejectTimesheet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ timesheetID }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      fetchAndPopulateData();
+    })
+    .catch(error => console.error('Error rejecting timesheet:', error));
+  }
 
     async function fetchAndPopulateData() {
       var temp = await checkValidEmployeeId();
@@ -143,8 +185,9 @@ async function showAssignProjects() {
             const payPeriodDate = new Date(entry.PayPeriod);
             row.insertCell(3).textContent = payPeriodDate.toISOString().split('T')[0];
             row.insertCell(4).textContent = entry.HoursWorked;
+            row.insertCell(5).textContent = entry.TimeSheetID;
 
-            const actionsCell = row.insertCell(5);
+            const actionsCell = row.insertCell(6);
             const approveBtn = document.createElement('button');
             approveBtn.textContent = 'Yes';
             approveBtn.classList.add('approveBtn');
@@ -156,18 +199,12 @@ async function showAssignProjects() {
             rejectBtn.classList.add('rejectBtn');
             actionsCell.appendChild(rejectBtn);
 
-            const timesheetID = entry.TimesheetID; // Change this to match your actual property name
+            const timesheetID = entry.TimesheetID;
             const employeeID = entry.EmployeeID;
 
-            approveBtn.addEventListener('click', async () => {
-              await approveTimesheet(timesheetID);
-              console.log('Approval updated for Employee ID:', employeeID);
-            });
+            approveBtn.addEventListener('click', () => approveTimesheet(entry.TimeSheetID));
+            rejectBtn.addEventListener('click', () => rejectTimesheet(entry.TimeSheetID));
 
-            rejectBtn.addEventListener('click', () => {
-              console.log('Rejection clicked for Employee ID:', employeeID);
-              // You can add rejection logic if needed
-            });
           });
         } else {
           console.error('Error:', data.message || 'No data found');

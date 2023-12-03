@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Generate Paystubs</title>
+  <link rel="stylesheet" href="../stylesheets/paystub.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Generate Paystubs</h1>
+
+    <form class="paystubForm" id="paystubForm">
+        <div class="form-group">
+          <label for="EmployeeID">Employee ID:</label>
+          <input type="text" id="EmployeeID" required>
+        </div>
+      <button type="submit">Generate Paystubs</button>
+    </form>
+    
+    <table id="employeeTable">
+      <thead>
+        <tr>
+          <th>Stub</th>
+          <th>Pay Period</th>
+          <th>Hours</th>
+          <th>Overtime Hours</th>
+          <th>Net Pay</th>
+          <th>Deductions</th>
+          <th>Current Gross Pay</th>
+        </tr>
+      </thead>
+      <tbody id="employeeData"></tbody>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+  
+      const paystubForm = document.getElementById('paystubForm');
+  
+      paystubForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+  
+        fetchAndPopulateData();
+      });
+  
+      async function fetchAndPopulateData() {
+        const employeeID = document.getElementById('EmployeeID').value;
+        console.log("EmployeeID for fetch: " + employeeID);
+
+        try {
+            const response = await fetch(`/paystub/${employeeID}`);
+            console.log("Response Status:", response.status);
+            console.log("Response Status Text:", response.statusText);
+
+            const data = await response.json();
+            console.log('Response Data:', data);
+
+            const tableBody = document.getElementById('employeeData');
+            tableBody.innerHTML = '';
+
+            if (data && data.length > 0) {
+            data.forEach(entry => {
+                console.log("Show entry:", entry); 
+                console.log("Show entry stub: " + entry[0]);
+
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = entry.StubID; 
+                row.insertCell(1).textContent = entry.PayPeriod;
+                row.insertCell(2).textContent = entry.HoursWorked;
+                row.insertCell(3).textContent = entry.OtHoursWorked;
+                row.insertCell(4).textContent = entry.NetPay;
+                row.insertCell(5).textContent = entry.Deductions;
+                row.insertCell(6).textContent = entry.GrossPay;
+            });
+            } else {
+            console.error('Error: No data found');
+            alert('No data found for this employee');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+        }
+
+        // Fetch data on page load
+        fetchAndPopulateData();
+
+    });
+  </script>  
+</body>
+</html>

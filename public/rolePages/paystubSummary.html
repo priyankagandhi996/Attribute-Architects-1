@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paystub Summary</title>
+    <link rel="stylesheet" href="../stylesheets/paystubSummary.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Paystub Summary</h1>
+
+    <form id="payPeriodForm">
+        <div class="form-group">
+            <label for="PayPeriod">Enter Pay Period:</label>
+            <input type="text" id="PayPeriod" name="PayPeriod" placeholder="YYYY-MM-DD">
+        </div>
+        <button type="button" onclick="getPaystubSummary()">Get Summary</button>
+    </form>
+
+    <div id="paystubSummaryTable" class="timesheet">
+        <h2>Paystub Summary for <span id="displayedPayPeriod"></span></h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Number of Employees</th>
+                    <th>Total Gross Pay</th>
+                    <th>Total Deductions</th>
+                    <th>Total Net Pay</th>
+                </tr>
+            </thead>
+            <tbody id="paystubSummaryBody">
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+
+async function getPaystubSummary() {
+    const enteredPayPeriod = document.getElementById('PayPeriod').value;
+
+    // Input validation
+    if (!enteredPayPeriod.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        alert('Please enter a valid date in the format YYYY-MM-DD.');
+        return;
+    }
+
+    try {
+
+        const response = await fetch(`/payrollSummary/${enteredPayPeriod}`);
+        const paystubData = await response.json();
+
+        console.log(paystubData);
+
+        document.getElementById('displayedPayPeriod').textContent = enteredPayPeriod;
+
+        const paystubSummaryBody = document.getElementById('paystubSummaryBody');
+        paystubSummaryBody.innerHTML = '';
+
+        paystubData.forEach(data => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${data.EmployeeCount}</td>
+                <td>${data.GrossPaySum.toFixed(2)}</td>
+                <td>${data.DeductionsSum.toFixed(2)}</td>
+                <td>${data.NetPaySum.toFixed(2)}</td>
+                <!-- Add more cells for additional columns -->
+            `;
+            paystubSummaryBody.appendChild(row);
+        });
+
+        document.getElementById('paystubSummaryTable').style.display = 'block';
+    } catch (error) {
+        console.error('Error fetching paystub summary:', error);
+    }
+}
+
+
+</script>
+
+</body>
+</html>
