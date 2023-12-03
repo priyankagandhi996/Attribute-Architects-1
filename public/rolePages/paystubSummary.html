@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paystub Summary</title>
+    <link rel="stylesheet" href="../stylesheets/paystubSummary.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Paystub Summary</h1>
+
+    <!-- Form to input pay period -->
+    <form id="payPeriodForm">
+        <div class="form-group">
+            <label for="PayPeriod">Enter Pay Period:</label>
+            <input type="text" id="PayPeriod" name="PayPeriod" placeholder="YYYY-MM-DD">
+        </div>
+        <button type="button" onclick="getPaystubSummary()">Get Summary</button>
+    </form>
+
+    <!-- Display Paystub Summary Table -->
+    <div id="paystubSummaryTable" class="timesheet">
+        <h2>Paystub Summary for <span id="displayedPayPeriod"></span></h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Net Pay</th>
+                    <!-- Add more columns as needed -->
+                </tr>
+            </thead>
+            <tbody id="paystubSummaryBody">
+                <!-- Paystub summary rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    // Function to get paystub summary for the entered pay period
+    function getPaystubSummary() {
+        // Implement the logic to fetch paystub summary data using AJAX or other methods
+        // Update the paystubSummaryBody and displayedPayPeriod elements dynamically
+        // Example:
+        const enteredPayPeriod = document.getElementById('PayPeriod').value;
+        document.getElementById('displayedPayPeriod').textContent = enteredPayPeriod;
+
+        // Simulate data for demonstration purposes
+        const paystubData = [
+            { employeeID: 'EMP001', netPay: 1500.00 },
+            { employeeID: 'EMP002', netPay: 1800.50 },
+            // Add more data as needed
+        ];
+
+        const paystubSummaryBody = document.getElementById('paystubSummaryBody');
+        paystubSummaryBody.innerHTML = ''; // Clear existing rows
+
+        paystubData.forEach(data => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${data.employeeID}</td>
+                <td>${data.netPay.toFixed(2)}</td>
+                <!-- Add more cells for additional columns -->
+            `;
+            paystubSummaryBody.appendChild(row);
+        });
+
+        // Display the summary table
+        document.getElementById('paystubSummaryTable').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

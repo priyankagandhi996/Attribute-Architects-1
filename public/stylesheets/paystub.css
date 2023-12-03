@@ -1,0 +1,127 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+  }
+
+  #EmployeeID {
+    width: 120px;
+    margin-bottom: 10;
+  }
+
+  #PayPeriod,
+  #HoursWorked {
+    width: 120px;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .timesheet ,.bankdetails{
+    display: none;
+  }
+
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .addEmployeeForm {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .form-group {
+    width: 100%;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="email"] {
+    width: calc(100% - 18px); 
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  button {
+    display: inline-block;
+    margin-bottom: 10px;
+    width: 150px; /* Add 'px' for the unit */
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    gap: 10px;
+  }
+  
+  .addTimesheetForm button,
+  .addEmployeeForm button {
+    display: flex;
+    margin-bottom: 10px;
+    width: 250px; /* Add 'px' for the unit */
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  table th, table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  table th {
+    background-color: #f2f2f2;
+  }
+  
+  .deleteBtn {
+    padding: 6px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+
+  .generateStub {
+    padding: 6px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: #355cdc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+  }
+  
+  .deleteBtn {
+    background-color: red;
+    color: white; /* Text color to ensure visibility */
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+
+  .deleteBtn:hover {
+    background-color: #c82333;
+  }
+  
+  

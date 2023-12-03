@@ -134,6 +134,39 @@ connection.then(connection => {
 		}
 	});
 
+	app.get('/paystub/:employeeID', async (req, res) => {
+		const employeeID = req.params.employeeID;
+	  
+		try {
+		  const result = await connection.execute(`
+			SELECT PayStub.*, Timesheet.HoursWorked, Timesheet.PayPeriod
+			FROM PayStub
+			JOIN Timesheet ON PayStub.TimeSheetID = Timesheet.TimeSheetID
+			WHERE Timesheet.EmployeeID = :employeeID
+		  `, [employeeID]); // Use named bind variable
+
+
+		  console.log('SQL Query:', result.sql); // Log the SQL query
+		  console.log('SQL Result:', result.rows); // Log the result data
+	  
+		  const paystubData = result.rows.map(row => ({
+			StubID: row[0],
+			TimeSheetID: row[1],
+			OtHoursWorked: row[2],
+			GrossPay: row[3],
+			Deductions: row[4],
+			NetPay: row[5],
+			HoursWorked: row[6],
+			PayPeriod: row[7]
+		  }));
+	  
+		  res.json(paystubData);
+		} catch (error) {
+		  console.error('Error fetching data:', error);
+		  res.status(500).json({ error: 'Internal Server Error', details: error.message });
+		}
+	  });
+
 	app.get('/employees', async (req, res) => {
 		try {
 			const result = await connection.execute('SELECT * FROM EMPLOYEEP');
@@ -214,6 +247,10 @@ connection.then(connection => {
 	});
 	
 
+	app.post('/calcPayrollSummary', async (req, res) => {
+
+	});
+
 	app.post('/insertTimesheet', async (req, res) => {
 		try {
 		  const {
@@ -261,6 +298,26 @@ connection.then(connection => {
 		} catch (error) {
 		  console.error('Error inserting timesheet:', error);
 		  return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
+	  });
+
+	  app.post('/createPayStub/', async (req, res) => {
+		const timesheetID = req.body.timesheetID;
+
+		try {
+			const createPaystub = await connection.execute(
+				'execute Calc_PayStub(:timesheetID);',
+				[timesheetID]
+			);
+
+			if(createPaystub.rowsAffected === 1) {
+				res.json({ success: true, message: 'Paystub created successfully'});
+			} else {
+				res.json({ success: false, message: 'Paystub creation unsuccessful.' });
+			}
+		} catch(error) {
+			console.error('Error creating paystub:', error);
+			res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
 		}
 	  });
 
