@@ -606,8 +606,11 @@ app.post('/updateEmployeeDetails', async (req, res) => {
 app.get('/employeeProjects/:managerID', async (req, res) => {
 		const managerID = req.params.managerID;
 		try {
-		  const sqlStatement = `select employeep.employeeid, employeep.f_name, employeep.l_name,a.projects from employeep left outer join
-(select employeep.employeeid, f_name,l_name,LISTAGG(project_name, ', ') WITHIN GROUP (ORDER BY project_name) AS projects from employeep inner join worksonp
+		  const sqlStatement = `select employeep.employeeid,
+		  employee_name(employeep.f_name, employeep.l_name) as Name
+		   ,a.projects from employeep left outer join
+			(select employeep.employeeid, f_name,l_name,LISTAGG(project_name, ', ') 
+			WITHIN GROUP (ORDER BY project_name) AS projects from employeep inner join worksonp
 			on employeep.employeeID=worksonp.employeeid
 			inner join e_project
 			on worksonp.projectid = e_project.projectid

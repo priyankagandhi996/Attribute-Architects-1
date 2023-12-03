@@ -429,6 +429,7 @@
         console.log('Response Data:', data);
 
         if (data.success) {
+          alert("Data updated successfully");
           // Reload or update the table to show the new timesheet
           fetchAndPopulateBankDetails();
         } else {
