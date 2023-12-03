@@ -80,7 +80,7 @@ connection.then(connection => {
 			  T.TimeSheetID \
 			FROM TIMESHEET T \
 			JOIN EMPLOYEEP E ON T.EmployeeID = E.EmployeeID \
-			WHERE E.ManagerID = :managerID AND T.M_Approval = \'N\'',
+			WHERE E.ManagerID = :managerID AND T.M_Approval = \'P\'',
 			[managerID]
 		  );
 	  
@@ -219,7 +219,8 @@ connection.then(connection => {
 
 		  const sqlStatement = await connection.execute(
 				'UPDATE TIMESHEET SET M_Approval = \'Y\' WHERE TimesheetID = :timesheetID',
-		  		[timesheetID]
+		  		[timesheetID],
+				{ autoCommit: true }
 		  );
 
 		  if (sqlStatement.rowsAffected === 1) {
@@ -332,20 +333,23 @@ connection.then(connection => {
 		}
 	  });
 
-	  app.post('/createPayStub/', async (req, res) => {
-		const timesheetID = req.body.timesheetID;
+	  app.post('/createPayStub/:timesheetID', async (req, res) => {
+		const timesheetID = req.params.timesheetID;
 
 		try {
+			const bindings = {
+				p_timesheetID: { dir: oracledb.BIND_IN, type: oracledb.NUMBER, val: timesheetID }
+			};
+			
+			console.log(bindings);
+
 			const createPaystub = await connection.execute(
-				'execute Calc_PayStub(:timesheetID);',
-				[timesheetID]
+				'Begin Calc_PayStub(:timesheetID); END;',
+				bindings
 			);
 
-			if(createPaystub.rowsAffected === 1) {
-				res.json({ success: true, message: 'Paystub created successfully'});
-			} else {
-				res.json({ success: false, message: 'Paystub creation unsuccessful.' });
-			}
+			console.log(createPaystub);
+			
 		} catch(error) {
 			console.error('Error creating paystub:', error);
 			res.status(500).json({ error: 'Internal Server Error', details: error.toString() });

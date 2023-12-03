@@ -70,20 +70,27 @@
   });
 
   function approveTimesheet(timesheetID) {
-    fetch('/approveTimesheet', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ timesheetID }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      fetchAndPopulateData();
-    })
-    .catch(error => console.error('Error approving timesheet:', error));
-  }
+  fetch('/approveTimesheet', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ timesheetID }),
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+    fetchAndPopulateData();
+    if (data.success) {
+      console.log("Timesheet approved on client side.")
+      // If approval is successful, create the paystub
+      createPaystub(parseInt(timesheetID));
+    } else {
+      console.log('Approval unsuccessful. Paystub creation skipped.');
+    }
+  })
+  .catch(error => console.error('Error approving timesheet:', error));
+}
 
     async function checkValidEmployeeId(){
       const managerID = document.getElementById('ManagerID').value;
@@ -213,6 +220,25 @@ async function showAssignProjects() {
         console.error('Error:', error);
       }
     }
+
+    async function createPaystub(timesheetID) {
+      await fetch(`/createPayStub/${timesheetID}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        if (data.success) {
+          console.log("successfully inserted paystub");
+        } else {
+         console.log("paystub insertion unsuccessful");
+        }
+      })
+      .catch(error => console.error('Error creating paystub:', error));
+    };
 
     async function assignProjects(){
       var temp = await checkValidEmployeeId();
