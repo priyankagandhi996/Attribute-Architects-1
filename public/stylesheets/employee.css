@@ -47,6 +47,7 @@ body {
   }
   
   .form-group input[type="text"],
+  .form-group input[type="date"],
   .form-group input[type="email"] {
     width: calc(100% - 18px); 
     padding: 8px;
@@ -58,7 +59,6 @@ body {
   button {
     display: inline-block;
     margin-bottom: 10px;
-    width: 150px; /* Add 'px' for the unit */
     padding: 8px 16px;
     font-size: 16px;
     cursor: pointer;
@@ -124,4 +124,18 @@ body {
     background-color: #c82333;
   }
   
+  .buttonOption{
+  width: 200px;
+  height: 200px; 
+  font-size: 20px;
+  font-family: 'Helvetica';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  }
   
+ 

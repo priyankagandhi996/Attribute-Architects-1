@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Manager Timesheets</title>
   <link rel="stylesheet" href="../stylesheets/manager.css">
+    <link rel="stylesheet" href="/stylesheets/homepage.css">
 </head>
 <body>
   <div class="container">
@@ -16,12 +17,14 @@
       </div>
     </div>
     
-    <form class="findEmployeeTimecards" id="findEmployeeForm">
+     <div class="optionsContainer" style="margin:10px">
+    <form class="findEmployeeTimecards" id="findEmployeeForm" onsubmit="event.preventDefault(); fetchAndPopulateData();">
       <button type="submit">See Employee Timesheets</button>
     </form>
     <form class="assignProjects" id="assignProjectsForm">
       <button type="submit">Assign Projects</button>
     </form>
+    </div>
 
     <table id="employeeTable">
       <thead>
@@ -43,8 +46,7 @@
       <thead>
         <tr>
           <th>Employee ID</th>
-          <th>First Name</th>
-          <th>Last Name</th>
+          <th>Name</th>
           <th>Project already assigned</th>
           <th>Project can be assigned</th>
         </tr>
@@ -83,6 +85,62 @@
     .catch(error => console.error('Error approving timesheet:', error));
   }
 
+    async function checkValidEmployeeId(){
+      const managerID = document.getElementById('ManagerID').value;
+      if(!isNaN(managerID)){
+        return true;
+      }
+      return false;
+    }
+
+async function showTimeSheet() {
+    var projectTable = document.getElementById("projectTable");
+      projectTable.style.display = "none";
+    var x = document.getElementById("employeeTable");
+      x.style.display = "block";
+    hideProfileDetails();
+  }
+
+async function showAssignProjects() {
+    var employeeTable = document.getElementById("employeeTable");
+      employeeTable.style.display = "none";
+    var x = document.getElementById("projectTable");
+      x.style.display = "block";
+  }
+
+  async function hideTimeSheet() {
+     var employeeTable = document.getElementById("employeeTable");
+      employeeTable.style.display = "none";
+    }
+
+    async function checkValidEmployeeId(){
+      const managerID = document.getElementById('ManagerID').value;
+      if(!isNaN(managerID)){
+        return true;
+      }
+      return false;
+    }
+
+async function showTimeSheet() {
+    var projectTable = document.getElementById("projectTable");
+      projectTable.style.display = "none";
+    var x = document.getElementById("employeeTable");
+      x.style.display = "block";
+    hideProfileDetails();
+  }
+
+async function showAssignProjects() {
+    var employeeTable = document.getElementById("employeeTable");
+      employeeTable.style.display = "none";
+    var x = document.getElementById("projectTable");
+      x.style.display = "block";
+  }
+
+  async function hideTimeSheet() {
+     var employeeTable = document.getElementById("employeeTable");
+      employeeTable.style.display = "none";
+    }
+
   function rejectTimesheet(timesheetID) {
     fetch('/rejectTimesheet', {
       method: 'POST',
@@ -100,6 +158,13 @@
   }
 
     async function fetchAndPopulateData() {
+      var temp = await checkValidEmployeeId();
+      console.log(temp)
+      if(!temp){
+        alert("Please eneter valid employee if (numbers only)");
+        return;
+      }
+      showTimeSheet();
       const managerID = document.getElementById('ManagerID').value;
 
       try {
@@ -150,7 +215,14 @@
     }
 
     async function assignProjects(){
-            const managerID = document.getElementById('ManagerID').value;
+      var temp = await checkValidEmployeeId();
+      console.log(temp)
+      if(!temp){
+        alert("Please eneter valid employee if (numbers only)");
+        return;
+      }
+      showAssignProjects();
+      const managerID = document.getElementById('ManagerID').value;
 
       try {
         const response = await fetch(`/employeeProjects/${managerID}`);
@@ -169,7 +241,7 @@
           assignedProjectsList.forEach((entry, index) => {
             console.log(entry);
             var tempallProject = allProjects;
-            assignedProjects = entry[3];
+            assignedProjects = entry[2];
             if(assignedProjects!=null)
               tempallProject = tempallProject.filter( ( el ) => !assignedProjects.includes( el[1] ));
             const container = document.createElement('span');
@@ -204,7 +276,6 @@
                         <td>${entry[0]}</td>
                         <td>${entry[1]}</td>
                         <td>${entry[2]}</td>
-                        <td>${entry[3]}</td>
                       `;
                       row.appendChild(container);
             tableBody.appendChild(row);            

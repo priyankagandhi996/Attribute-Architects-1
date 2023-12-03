@@ -662,22 +662,15 @@ app.post('/updateEmployeeDetails', async (req, res) => {
 		const addr = req.body.addr;
 
 		try {
-		  // Log the formatted date before executing the SQL statement
-		  const formattedPayPeriod = new Date(bdate).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: '2-digit',
-			day: '2-digit',
-		  });
-		  console.log('Formatted Pay Period:', formattedPayPeriod);
-	  
-		  // Log the SQL statement
+	  		  // Log the SQL statement
 		  console.log(employeeID);
-		  const sqlStatement = 'UPDATE Employeep SET f_name= :fname, l_name = :lname, address= :addr WHERE EmployeeID = :employeeID';
+		  const sqlStatement = `UPDATE Employeep SET b_date = TO_DATE(:bdate,
+		   'YYYY-MM-DD'), f_name= :fname, l_name = :lname, address= :addr WHERE EmployeeID = :employeeID`;
 		  console.log('Executing SQL:', sqlStatement);
 	  
 		  const result = await connection.execute(
 			sqlStatement,
-			[fname, lname, addr, employeeID], { autoCommit: true }
+			[bdate,fname, lname, addr, employeeID], { autoCommit: true }
 		  );
 	  
 		  console.log(result);
@@ -697,8 +690,11 @@ app.post('/updateEmployeeDetails', async (req, res) => {
 app.get('/employeeProjects/:managerID', async (req, res) => {
 		const managerID = req.params.managerID;
 		try {
-		  const sqlStatement = `select employeep.employeeid, employeep.f_name, employeep.l_name,a.projects from employeep left outer join
-(select employeep.employeeid, f_name,l_name,LISTAGG(project_name, ', ') WITHIN GROUP (ORDER BY project_name) AS projects from employeep inner join worksonp
+		  const sqlStatement = `select employeep.employeeid,
+		  employee_name(employeep.f_name, employeep.l_name) as Name
+		   ,a.projects from employeep left outer join
+			(select employeep.employeeid, f_name,l_name,LISTAGG(project_name, ', ') 
+			WITHIN GROUP (ORDER BY project_name) AS projects from employeep inner join worksonp
 			on employeep.employeeID=worksonp.employeeid
 			inner join e_project
 			on worksonp.projectid = e_project.projectid

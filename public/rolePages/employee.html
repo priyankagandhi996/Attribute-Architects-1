@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>Employee Timesheets</title>
   <link rel="stylesheet" href="../stylesheets/employee.css">
+  <link rel="stylesheet" href="/stylesheets/homepage.css">
+  
+
 </head>
 <body>
 
@@ -12,8 +15,8 @@
   </a>
 
   <div class="optionsContainer">
-    <button onclick="showTimeSheet()"> TimeSheet </button>
-    <button onclick="showBankDetails()"> Personal Details </button>
+    <button class="buttonOption" onclick="showTimeSheet()"> TimeSheet </button>
+    <button class="buttonOption" onclick="showBankDetails()"> Personal Details </button>
   </div>
 
   <div class="container timesheet">
@@ -22,7 +25,7 @@
     <div class="form-row">
       <div class="form-group">
         <label for="EmployeeID">Enter EmployeeID:</label>
-        <input type="text" id="EmployeeID">
+        <input type="text" id="EmployeeID" pattern="[1-9]{1}[0-9]{9}">
       </div>
     </div>
 
@@ -65,16 +68,16 @@
     <h1>Profile Details</h1>
 
     <div class="form-row">
-        <div class="form-group">
+        <div class="form-group optionsContainer">
           <label for="EmployeeID3">Enter EmployeeID:</label>
-          <input type="text" id="EmployeeID3">
+          <input type="text" id="EmployeeID3" required>
            <button type="submit" onclick="searchEmployee()">Search Employee</button>
         </div>
       </div>
 
 <div class="profileDetailForm" id="profileDetailForm">
 
-      <form class="profileDetailForm" id="profileDetailForm" onsubmit="event.preventDefault(); updateEmployeeDetails();">
+      <form class="profileDetailForm " id="profileDetailForm" onsubmit="event.preventDefault(); updateEmployeeDetails();">
         <div class="form-row">
           <div class="form-group">
             <label for="EmployeeID4">Employee ID:</label>
@@ -90,7 +93,7 @@
           </div>
           <div class="form-group">
             <label for="B_Date">Birth Date:</label>
-            <input type="text" id="B_Date">
+            <input type="date" id="B_Date">
           </div>
           <div class="form-group">
             <label for="Address">Address:</label>
@@ -119,7 +122,9 @@
             <input type="text" id="ManagerID" disabled >
           </div>
         </div>
-        <button type="submit">Update Details</button>
+        <div class="optionsContainer">
+        <button type="submit">Update Details</button>          
+        </div>
       </form>
 
    <h1>Employee Bank Information</h1>
@@ -137,13 +142,13 @@
       </table>
 
       <form class="addBankDetailsForm" onsubmit="event.preventDefault(); insertBankDetails();">
-        <div class="form-row">
+        <div class="form-row optionsContainer">
           <div class="form-group">
             <label for="AccNumber">Account Number</label>
-            <input type="text" id="AccNumber">
+            <input type="text" id="AccNumber" minlength="10" maxlength="10" pattern="[1-9]{1}[0-9]{9}">
           </div>
-        </div>
         <button type="submit">Insert Bank Details</button>
+         </div>
       </form>
     </div>
 
@@ -336,6 +341,16 @@
     var x = document.getElementsByClassName("profileDetailForm");
       x[0].style.display = "none";
     }
+  async function showBankDetailsForm() {
+    var x = document.getElementsByClassName("addBankDetailsForm");
+      x[0].style.display = "block";
+    }
+
+  async function hideBankDetailsForm() {
+    var x = document.getElementsByClassName("addBankDetailsForm");
+      x[0].style.display = "none";
+    }
+
 
   async function insertBankDetails() {
       const employeeID = document.getElementById('EmployeeID3').value;
@@ -379,12 +394,12 @@
         const data = await response.json();
 
         console.log('Response Data:', data);
+        const tableBody = document.getElementById('employeeBankDetails');
+        tableBody.innerHTML = '';
 
         if (data && data.length > 0) {
           // Clear existing table rows
-          const tableBody = document.getElementById('employeeBankDetails');
-          tableBody.innerHTML = '';
-
+          
           // Loop through the retrieved data and append rows to the table
           data.forEach(entry => {
             const row = document.createElement('tr');
@@ -396,8 +411,10 @@
                         </td>`;
                         tableBody.appendChild(row);
           });
+          hideBankDetailsForm();
         } else {
           console.error('Error:', data.message || 'No data found');
+          showBankDetailsForm();
         }
       } catch (error) {
         console.error('Error:', error);
@@ -418,6 +435,8 @@
             fetchAndPopulateBankDetails();
         })
         .catch(error => console.error('Error deleting bank detail:', error));
+        fetchAndPopulateBankDetails();
+
     }
 
 
@@ -427,6 +446,26 @@
       const lname = document.getElementById('L_Name').value; 
       const bdate = document.getElementById('B_Date').value; 
       const addr = document.getElementById('Address').value; 
+      console.log(fname);
+      if(lname==='' || fname==='' || addr==='' || bdate===''){
+        window.alert("Fields cannot be empty");
+        return;
+      }
+      if(fname.length > 15) {
+          alert('First name is ' + (fname.length - 15) + ' characters too long.');
+          return;
+        }
+
+        if(lname.length > 15) {
+          alert('Last name is ' + (lname.length - 15) + ' characters too long.');
+          return;
+        }
+
+        if (addr.length > 200) {
+          alert('Address is ' + (addr.length - 200) + ' characters too long.');
+          return;
+        }
+
 
       try {
         const response = await fetch('/updateEmployeeDetails', {
@@ -448,6 +487,7 @@
         console.log('Response Data:', data);
 
         if (data.success) {
+          alert("Data updated successfully");
           // Reload or update the table to show the new timesheet
           fetchAndPopulateBankDetails();
         } else {
@@ -459,8 +499,23 @@
 
     }
 
+    async function checkValidEmployeeId(){
+      const employeeID = document.getElementById('EmployeeID3').value;
+      console.log(employeeID);
+      if(!isNaN(employeeID)){
+        return true;
+      }
+      return false;
+    }
+
     async function searchEmployee(){
       const employeeID = document.getElementById('EmployeeID3').value;
+      var temp = await checkValidEmployeeId();
+      console.log(temp)
+      if(!temp){
+        alert("Please eneter valid employee if (numbers only)");
+        return;
+      }
 
       try {
         const response = await fetch(`/getEmployeeDetails/${employeeID}`);
@@ -477,7 +532,10 @@
             document.getElementById("EmployeeID4").value = entry.EmployeeID;
             document.getElementById("F_Name").value = entry.fname;
             document.getElementById("L_Name").value = entry.lname;
-            document.getElementById("B_Date").value = entry.bdate;
+            const d = new Date(entry.bdate).toISOString().split('T')[0];
+            console.log(d);
+            // update birthdate in database as well.
+            document.getElementById("B_Date").value = d;
             document.getElementById("Address").value = entry.addr;
             document.getElementById("Email").value = entry.email;
             document.getElementById("DepartmentID").value = entry.EmployeeID;
