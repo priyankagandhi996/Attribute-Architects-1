@@ -16,6 +16,7 @@ var fs = require('fs');
 var express = require('express');
 const app = express();
 const path = require('path');
+const oracledb = require('oracledb');
 var connection = require('./connectToDB.js'); // connect to DB
 var bodyParser = require('body-parser'); // middleware
 
@@ -98,6 +99,36 @@ connection.then(connection => {
 		  res.status(500).json({ error: 'Internal Server Error' });
 		}
 	  });	  
+
+	  app.get('/payrollSummary/:payPeriod', async (req, res) => {
+		const payPeriod = req.params.payPeriod;
+	
+		try {
+			const bindings = {
+				p_PayPeriod: payPeriod,
+				p_EmployeeCount: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+				p_GrossPaySum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+				p_DeductionsSum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+				p_NetPaySum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+			};
+	
+			const result = await connection.execute(
+				'BEGIN Calc_PayrollSummary(:p_PayPeriod); END;',
+				bindings
+			);
+	
+			console.log('Number of Employees with Paystubs:', result.outBinds.p_EmployeeCount);
+			console.log('Total Gross Pay:', result.outBinds.p_GrossPaySum);
+			console.log('Total Deductions:', result.outBinds.p_DeductionsSum);
+			console.log('Total Net Pay:', result.outBinds.p_NetPaySum);
+	
+			// Handle the result and send the appropriate response to the client
+	
+		} catch (error) {
+			console.error('Error fetching data:', error);
+			res.status(500).json({ error: 'Internal Server Error' });
+		}
+		});
 	  
 	app.get('/timesheetsForEmployees/:employeeID', async (req, res) => {
 		const employeeID = req.params.employeeID;
