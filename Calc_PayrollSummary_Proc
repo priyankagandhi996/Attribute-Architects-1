@@ -1,13 +1,12 @@
 --Payroll Summary Procedure--
-CREATE OR REPLACE PROCEDURE Calc_PayrollSummary(
-    p_PayPeriod DATE
+create or replace PROCEDURE Calc_PayrollSummary(
+    p_PayPeriod DATE,
+    p_EmployeeCount OUT NUMBER,
+    p_GrossPaySum OUT NUMBER,
+    p_DeductionsSum OUT NUMBER,
+    p_NetPaySum OUT NUMBER
 )
 IS
-p_EmployeeCount INT;
-p_GrossPaySum Float;
-p_DeductionsSum Float;
-p_NetPaySum Float;
-
 BEGIN
     SELECT COUNT(DISTINCT t.EmployeeID),
            SUM(ps.GrossPay),
@@ -17,12 +16,12 @@ BEGIN
     FROM TIMESHEET t
     INNER JOIN PAYSTUB ps ON t.TimeSheetID = ps.TimeSheetID
     WHERE t.PayPeriod = p_PayPeriod;
-    
+
     DBMS_OUTPUT.PUT_LINE('Number of Employees with Paystubs: ' || p_EmployeeCount);
     DBMS_OUTPUT.PUT_LINE('Total Gross Pay: ' || p_GrossPaySum);
     DBMS_OUTPUT.PUT_LINE('Total Deductions: ' || p_DeductionsSum);
     DBMS_OUTPUT.PUT_LINE('Total Net Pay: ' || p_NetPaySum);
-    
+
 END Calc_PayrollSummary;
 
 --Testing Procedure--

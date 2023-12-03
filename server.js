@@ -105,24 +105,24 @@ connection.then(connection => {
 	
 		try {
 			const bindings = {
-				p_PayPeriod: payPeriod,
+				p_PayPeriod: { dir: oracledb.BIND_IN, type: oracledb.DATE, val:  new Date(payPeriod) },
 				p_EmployeeCount: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
 				p_GrossPaySum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
 				p_DeductionsSum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
 				p_NetPaySum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
 			};
-	
+			console.log(bindings);
+
 			const result = await connection.execute(
-				'BEGIN Calc_PayrollSummary(:p_PayPeriod); END;',
-				bindings
-			);
-	
+				`Begin Calc_PayrollSummary(:p_PayPeriod, :p_EmployeeCount, :p_GrossPaySum, :p_DeductionsSum, :p_NetPaySum); END;`,
+				bindings);			
+			console.log(result);
 			console.log('Number of Employees with Paystubs:', result.outBinds.p_EmployeeCount);
 			console.log('Total Gross Pay:', result.outBinds.p_GrossPaySum);
 			console.log('Total Deductions:', result.outBinds.p_DeductionsSum);
 			console.log('Total Net Pay:', result.outBinds.p_NetPaySum);
 	
-			// Handle the result and send the appropriate response to the client
+			//Handle the result and send the appropriate response to the client
 	
 		} catch (error) {
 			console.error('Error fetching data:', error);
