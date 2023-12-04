@@ -63,6 +63,7 @@
           <th>ID</th>
           <th>First Name</th>
           <th>Last Name</th>
+          <th>Birth Date</th>
           <th>Email</th>
           <th>Department ID</th>
           <th>Position</th>
@@ -89,13 +90,16 @@
                         <td>${employee[0]}</td>
                         <td>${employee[1]}</td>
                         <td>${employee[2]}</td>
+                        <td>${employee[3]}</td>
                         <td>${employee[5]}</td>
                         <td>${employee[6]}</td>
                         <td>${employee[7]}</td>
                         <td>${employee[8]}</td>
                         <td>${employee[9]}</td>
                         <td>
-                            <button class="deleteBtn" onclick="deleteEmployee(${employee[0]})">Delete</button>
+                          <button class="toggleStatusBtn" onclick="toggleEmployeeStatus(${employee[0]}, '${employee[10]}')">
+                            ${employee[10] === 'A' ? 'Terminate' : 'Make Active'}
+                          </button>
                         </td>
                     `;
                     employeeData.appendChild(row);
@@ -105,6 +109,25 @@
     }
 
     fetchAndPopulateData();
+
+    function toggleEmployeeStatus(employeeID, currentStatus) {
+      const newStatus = currentStatus === 'A' ? 'T' : 'A';
+
+      fetch('/toggleEmployeeStatus', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ employeeID, newStatus }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          fetchAndPopulateData();
+        })
+        .catch(error => console.error('Error toggling employee status:', error));
+    }
+
 
     function deleteEmployee(employeeID) {
         fetch('/deleteEmployee', {

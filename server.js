@@ -210,6 +210,29 @@ connection.then(connection => {
 
     // SET ROUTES TO GET/UPDATE/INSERT DATA
 
+	app.post('/toggleEmployeeStatus', async (req, res) => {
+		const employeeID = req.body.employeeID;
+		const newStatus = req.body.newStatus;
+	  
+		try {
+		  const sqlStatement = await connection.execute(
+			'UPDATE EMPLOYEEP SET EMPLOYEESTATUS = :newStatus WHERE EmployeeID = :employeeID',
+			[newStatus, employeeID],
+			{ autoCommit: true }
+		  );
+	  
+		  if (sqlStatement.rowsAffected === 1) {
+			res.json({ success: true, message: 'Employee status changed successfully.' });
+		  } else {
+			res.json({ success: false, message: 'Employee status not changed.' });
+		  }
+	  
+		} catch (error) {
+		  console.error('Error changing status:', error);
+		  res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
+		}
+	  });	  
+
 	app.post('/approveTimesheet', async (req, res) => {
 		const timesheetID = req.body.timesheetID;
 	  
