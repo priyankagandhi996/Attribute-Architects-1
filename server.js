@@ -338,14 +338,15 @@ connection.then(connection => {
 
 		try {
 			const bindings = {
-				p_timesheetID: { dir: oracledb.BIND_IN, type: oracledb.NUMBER, val: timesheetID }
+				p_timesheetID: { dir: oracledb.BIND_IN, type: oracledb.NUMBER, val: parseInt(timesheetID) }
 			};
 			
 			console.log(bindings);
 
 			const createPaystub = await connection.execute(
-				'Begin Calc_PayStub(:timesheetID); END;',
-				bindings
+				'Begin Calc_PayStub(:p_timesheetID); END;',
+				bindings,
+				{ autoCommit: true }
 			);
 
 			console.log(createPaystub);
