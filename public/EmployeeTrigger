@@ -22,8 +22,7 @@ BEGIN
         raise_application_error(-20001, 'DepartmentID does not exist');
     END IF;
 
-    IF manager_count = 0 THEN
+    IF manager_count = 0 and :NEW.ManagerID!=null THEN
         raise_application_error(-20001, 'ManagerID does not exist');
     END IF;
 END;
-

@@ -210,11 +210,32 @@ connection.then(connection => {
 
     // SET ROUTES TO GET/UPDATE/INSERT DATA
 
+
+
 	app.post('/toggleEmployeeStatus', async (req, res) => {
 		const employeeID = req.body.employeeID;
 		const newStatus = req.body.newStatus;
-	  
+
+
+	  	const isManager = null;
 		try {
+			const bindings = {
+				managerID: { dir: oracledb.BIND_IN, type: oracledb.NUMBER, val: parseInt(employeeID) },
+				p_result: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+			};
+			
+			console.log(bindings);
+
+			const employee_count = await connection.execute(
+				'Begin is_employee_manager(:managerID, :p_result); END;',
+				bindings
+			);
+
+			if(employee_count.outBinds.p_result>0){
+				res.json({success: false, message: "Employee is an Manager to " + employee_count.outBinds.p_result+" people" });
+				return;
+			}
+
 		  const sqlStatement = await connection.execute(
 			'UPDATE EMPLOYEEP SET EMPLOYEESTATUS = :newStatus WHERE EmployeeID = :employeeID',
 			[newStatus, employeeID],
@@ -598,11 +619,6 @@ connection.then(connection => {
 			BANKACCTNO
 		  } = req.body;
 	  
-		  // Check for missing required fields
-		  if (!BankID || !EmployeeID || !PaymentType || !BANKACCTNO) {
-			return res.status(400).json({ error: 'Missing required fields.' });
-		  }
-	  
 		  const insertQuery = `
 			INSERT INTO BANKDETAILS (
 			  BankID,
@@ -641,7 +657,7 @@ connection.then(connection => {
 		const employeeID = req.params.employeeID;
 		try {
 		  const result = await connection.execute(
-			'SELECT  EmployeeID, bankAcctNo, bankid FROM BankDetails WHERE EmployeeID = :employeeID',
+			'SELECT  EmployeeID, bankAcctNo,Paymenttype, bankid FROM BankDetails WHERE EmployeeID = :employeeID',
 			[employeeID]
 		  );
 	  
@@ -649,7 +665,8 @@ connection.then(connection => {
 		  const bankDetails = result.rows.map(row => ({
 			EmployeeID: row[0],
 			bankAcctNo: row[1],
-			bankid: row[2]
+			bankid: row[3],
+			paymenttype:row[2]
 		  }));
 	  
 		  res.json(bankDetails);
@@ -820,14 +837,14 @@ app.get('/employeeProjects/:managerID', async (req, res) => {
 				  const result = await connection.execute(insertQuery, bindParams, { autoCommit: true });
 			  
 				  if (result.rowsAffected === 1) {
-					return res.json({ success: true, message: 'BankDetails inserted successfully.' });
+					return res.json({ success: true, message: 'Project Details inserted successfully.' });
 				  } else {
-					return res.json({ success: false, message: 'BankDetails insertion unsuccessful.' });
+					return res.json({ success: false, message: 'Project Details insertion unsuccessful.' });
 				  }
 
 				}
 			} catch (error) {
-			  console.error('Error inserting BankDetails:', error);
+			  console.error('Error inserting Project Details:', error);
 			  return res.status(500).json({ error: 'Internal Server Error', details: error.toString() });
 			}
   });  

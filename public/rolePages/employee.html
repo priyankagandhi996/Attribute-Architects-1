@@ -133,6 +133,7 @@
           <tr>
             <th>Employee id</th>
             <th>Account Number</th>
+            <th>Payment Type</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -361,6 +362,7 @@
   async function insertBankDetails() {
       const employeeID = document.getElementById('EmployeeID3').value;
       const accNumber = document.getElementById('AccNumber').value;
+      console.log(accNumber);
 
       try {
         const response = await fetch('/insertBankDetails', {
@@ -371,8 +373,8 @@
           body: JSON.stringify({
             BankID: getRandom4DigitNumber(),
             EmployeeID: employeeID,
-            BANKACCTNO: accNumber,
-            PaymentType: 'Check'//Default as check, if account number is provided.
+            BANKACCTNO: (accNumber!='')? accNumber:null,
+            PaymentType: (accNumber!='')?'Direct Deposit':'Check' //Default as check, if account number is provided.
           })
         });
 
@@ -412,6 +414,7 @@
             row.innerHTML = `
                         <td>${entry.EmployeeID}</td>
                         <td>${entry.bankAcctNo}</td>
+                        <td>${entry.paymenttype}</td>
                          <td>
                             <button class="deleteBtn" onclick="deleteBankDetail(${entry.bankid})">Delete</button>
                         </td>`;
@@ -428,6 +431,7 @@
     }
 
    async function deleteBankDetail(bankid) {
+    console.log(bankid);
         fetch('/deletebankDetail', {
             method: 'POST',
             headers: {
@@ -543,7 +547,7 @@
             document.getElementById("B_Date").value = d;
             document.getElementById("Address").value = entry.addr;
             document.getElementById("Email").value = entry.email;
-            document.getElementById("DepartmentID").value = entry.EmployeeID;
+            document.getElementById("DepartmentID").value = entry.department;
             document.getElementById("Wage").value = entry.wage;
             document.getElementById("ManagerID").value = entry.manager;
             document.getElementById("Position").value = entry.position;
