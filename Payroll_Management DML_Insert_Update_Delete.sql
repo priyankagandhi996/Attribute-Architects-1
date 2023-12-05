@@ -7,7 +7,7 @@
 INSERT INTO DEPARTMENTP VALUES (1, 'Human Resources');
 INSERT INTO DEPARTMENTP VALUES (2, 'IT Department');
 INSERT INTO DEPARTMENTP VALUES (3, 'Administration');
-
+INSERT INTO DEPARTMENTP VALUES (4, 'Finance');
 --------------------------------------------------------
 --  Inserts for Table Employee
 --------------------------------------------------------
@@ -106,3 +106,9 @@ Where ProjectID=5;
 --WORKSON TABLE DELETE--
 DELETE FROM WORKSONP
 Where EmployeeID=1303;
+
+--DEPARTMENT TABLE DELETE--
+DELETE FROM DEPARTMENTP
+Where DEPARTMENTID=4;
+
+--Does not make sense to Delete or Update Paystub records as they are final--

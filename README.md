@@ -156,10 +156,9 @@ node seeListings.js
 ```
 
 ## To run the project
-1. Ensure the bike rental database is created in SQLDeveloper on your Villanova repository. See the "create bike db" folder for the SQL and inserts.
-2. Ensure the repository is cloned in Visual Studio Code and Oracle Instant Client is downloaded. Follow the sections above to do so.
-4. Open the dbconfig.js file and enter your Oracle username and password
-5. You may need to install the following libraries in the terminal (and any others that throw errors). **This only needs to be done one time.**
+1. Ensure the repository is cloned in Visual Studio Code and Oracle Instant Client is downloaded. Follow the sections above to do so.
+2. Open the dbconfig.js file and enter your Oracle username and password
+3. You may need to install the following libraries in the terminal (and any others that throw errors). **This only needs to be done one time.**
 ```
 npm install express
 npm install body-parser
@@ -167,7 +166,7 @@ npm install body-parser
 4. Make sure you are on the Villanova network, or connect to the VPN before starting the program.
 5. Open a new terminal in Visual Studio Code and run "npm start." The console should read "Server started at http://localhost:8080" and
 "Oracle connection established" if both the UI has been served locally and the Oracle connection is successfully established.
-7. Open http://localhost:8080 and you should see the UI of your application load.
+6. Open http://localhost:8080 and you should see the UI of your application load.
 
 [Working with git in Visual Studio Code](https://code.visualstudio.com/docs/sourcecontrol/overview)
 
