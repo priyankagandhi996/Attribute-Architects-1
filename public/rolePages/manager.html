@@ -208,6 +208,7 @@ async function showAssignProjects() {
           });
         } else {
           console.error('Error:', data.message || 'No data found');
+          alert("There are no pending timesheets for your employees.")
         }
       } catch (error) {
         console.error('Error:', error);
