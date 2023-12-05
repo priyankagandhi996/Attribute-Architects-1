@@ -751,7 +751,7 @@ app.get('/employeeProjects/:managerID', async (req, res) => {
 		try {
 		  const sqlStatement = `select employeep.employeeid,
 		  employee_name(employeep.f_name, employeep.l_name) as Name
-		   ,a.projects from employeep left outer join
+		   ,a.projects, employeep.employeestatus from employeep left outer join
 			(select employeep.employeeid, f_name,l_name,LISTAGG(project_name, ', ') 
 			WITHIN GROUP (ORDER BY project_name) AS projects from employeep inner join worksonp
 			on employeep.employeeID=worksonp.employeeid
@@ -759,9 +759,9 @@ app.get('/employeeProjects/:managerID', async (req, res) => {
 			on worksonp.projectid = e_project.projectid
 			where managerID = :managerID
 			GROUP BY employeep.employeeid, f_name, l_name) a
-            
             on employeep.employeeid = a.employeeid            
-             where managerid = :managerID`;
+             where managerid = :managerID and employeep.employeestatus ='A'
+             `;
 	  
 		  const result = await connection.execute(
 			sqlStatement,
