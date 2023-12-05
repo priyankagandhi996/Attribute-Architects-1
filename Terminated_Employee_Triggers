@@ -16,32 +16,30 @@ BEGIN
     END IF;
 END;
 
---Trigger to prevent terminating an employee if they are still assigned as an employee's manager---
-CREATE OR REPLACE TRIGGER prevent_terminated_manager
-BEFORE UPDATE ON EMPLOYEEP
-FOR EACH ROW
-DECLARE
-    manager_count NUMBER;
+--Trigger to prevent terminating an employee if they are still assigned as an employee's manager--
+CREATE OR REPLACE PROCEDURE is_employee_manager(
+    p_employee_id IN EMPLOYEEP.EmployeeID%TYPE,
+    p_result OUT BOOLEAN
+)
+IS
+    v_employee_count NUMBER;
 BEGIN
-    -- Check if the employee is still a manager for anyone
-    SELECT COUNT(*) INTO manager_count
+    -- Check if the employee is a manager for anyone
+    SELECT COUNT(*)
+    INTO v_employee_count
     FROM EMPLOYEEP
-    WHERE ManagerID = :OLD.EmployeeID AND EmployeeStatus = 'A';
+    WHERE ManagerID = p_employee_id AND EmployeeStatus = 'A';
+    DBMS_OUTPUT.PUT_LINE(v_employee_count);
+    -- Set the result based on the count
+    p_result := (v_employee_count > 0);
+END is_employee_manager;
+/
 
-    -- If the employee is a manager for any other employee, raise an error
-    IF manager_count > 0 AND :NEW.EmployeeStatus = 'T' THEN
-        raise_application_error(-20001, 'Cannot change status to ''T'' for an employee who is still a manager.');
-    END IF;
-END;
-
---Trigger deletes projects records in WORKSONP if an employee is terminated---
-CREATE OR REPLACE TRIGGER Delete_Worksonp_Record
-BEFORE UPDATE ON EMPLOYEEP
-FOR EACH ROW
+set serveroutput on;
+DECLARE
+    v_result BOOLEAN;
 BEGIN
-    IF :OLD.EmployeeStatus <> 'T' AND :NEW.EmployeeStatus = 'T' THEN
-        -- Delete records in WORKSONP for the employee
-        DELETE FROM WORKSONP
-        WHERE EmployeeID = :NEW.EmployeeID;
-    END IF;
+    is_employee_manager(1399, v_result);
+    DBMS_OUTPUT.PUT_LINE('Is a manager: ' || CASE WHEN v_result THEN 'TRUE' ELSE 'FALSE' END);
 END;
+/
