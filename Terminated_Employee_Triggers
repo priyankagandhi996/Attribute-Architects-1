@@ -1,0 +1,53 @@
+--Trigger to prevent adding an employee with a Terminated manager---
+CREATE OR REPLACE TRIGGER prevent_terminated_manager
+BEFORE INSERT ON EMPLOYEEP
+FOR EACH ROW
+DECLARE
+    manager_status CHAR(1);
+BEGIN
+    -- Retrieve the status of the manager
+    SELECT EmployeeStatus INTO manager_status
+    FROM EMPLOYEEP
+    WHERE EmployeeID = :NEW.ManagerID;
+
+    -- Check if the manager is terminated
+    IF manager_status = 'T' THEN
+        raise_application_error(-20001, 'Cannot assign a manager with EmployeeStatus = ''T''');
+    END IF;
+END;
+
+--Trigger to prevent terminating an employee if they are still assigned as an employee's manager---
+CREATE OR REPLACE TRIGGER prevent_terminated_manager
+BEFORE UPDATE ON EMPLOYEEP
+FOR EACH ROW
+DECLARE
+    manager_count NUMBER;
+BEGIN
+    -- Check if the employee is still a manager for anyone
+    SELECT COUNT(*) INTO manager_count
+    FROM EMPLOYEEP
+    WHERE ManagerID = :OLD.EmployeeID AND EmployeeStatus = 'A';
+
+    -- If the employee is a manager for any other employee, raise an error
+    IF manager_count > 0 AND :NEW.EmployeeStatus = 'T' THEN
+        raise_application_error(-20001, 'Cannot change status to ''T'' for an employee who is still a manager.');
+    END IF;
+END;
+
+--Trigger to prevent terminating an employee if they are still assigned as projects in WORKSONP---
+CREATE OR REPLACE TRIGGER prevent_term_employee_projects
+BEFORE UPDATE ON EMPLOYEEP
+FOR EACH ROW
+DECLARE
+    project_count NUMBER;
+BEGIN
+    -- Check if the employee is still assigned to any projects
+    SELECT COUNT(*) INTO project_count
+    FROM WORKSONP
+    WHERE EmployeeID = :OLD.EmployeeID;
+
+    -- If the employee is assigned to any projects, raise an error
+    IF project_count > 0 AND :NEW.EmployeeStatus = 'T' THEN
+        raise_application_error(-20001, 'Cannot change status to ''T'' for an employee who is still assigned to projects.');
+    END IF;
+END;
