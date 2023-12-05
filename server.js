@@ -523,7 +523,7 @@ connection.then(connection => {
 			}
 	
 			if (B_Date !== undefined && B_Date.trim() !== '') {
-				updateFields.push('B_Date = B_Date');
+				updateFields.push('B_Date = TO_DATE(:B_Date, \'YYYY-MM-DD\')');
 				updateValues.B_Date = B_Date;
 			}
 
