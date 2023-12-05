@@ -279,8 +279,12 @@
                 } else {
                   if (data.message === 'Employee not found.') {
                     alert('Employee not found. Please check the Employee ID.');
-                  } else {
-                    alert('Error: ' + data.message);
+                  } 
+                  else if (data.message === 'ORA-00001: unique constraint (DBTEAM5.SYS_C00626439) violated') {
+                    alert('Employee ID already in use. Select a different Employee ID');
+                  } 
+                  else {
+                    alert(data.message);
                   }
                 }
             })
