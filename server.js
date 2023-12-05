@@ -123,7 +123,7 @@ connection.then(connection => {
 			console.log('Total Net Pay:', result.outBinds.p_NetPaySum);
 	
 			//Handle the result and send the appropriate response to the client
-	
+			res.json(result.outBinds);
 		} catch (error) {
 			console.error('Error fetching data:', error);
 			res.status(500).json({ error: 'Internal Server Error' });

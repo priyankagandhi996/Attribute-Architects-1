@@ -4,8 +4,23 @@
   <meta charset="UTF-8">
   <title>HR Portal</title>
   <link rel="stylesheet" href="../stylesheets/hr.css">
+  <script>
+    var role = "Undecided";
+
+    function redirectToPage(url) {
+      window.location.href = url;
+    }
+  </script>
 </head>
 <body>
+    <div class="optionsContainer">
+
+        <form class="formContainer" action="/rolePages/paystubSummary.html" method="post">
+        <label for="managerOption" class="selectBox" onclick="redirectToPage('/rolePages/paystubSummary.html')">
+          Paystub Summary
+        </label>
+        </form>
+    </div>
   <div class="container">
     <h1>HR Portal</h1>
 

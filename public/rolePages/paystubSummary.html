@@ -14,7 +14,7 @@
     <form id="payPeriodForm">
         <div class="form-group">
             <label for="PayPeriod">Enter Pay Period:</label>
-            <input type="text" id="PayPeriod" name="PayPeriod" placeholder="YYYY-MM-DD">
+            <input type="date" id="PayPeriod" name="PayPeriod" placeholder="YYYY-MM-DD">
         </div>
         <button type="button" onclick="getPaystubSummary()">Get Summary</button>
     </form>
@@ -60,18 +60,15 @@ async function getPaystubSummary() {
         const paystubSummaryBody = document.getElementById('paystubSummaryBody');
         paystubSummaryBody.innerHTML = '';
 
-        paystubData.forEach(data => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${data.EmployeeCount}</td>
-                <td>${data.GrossPaySum.toFixed(2)}</td>
-                <td>${data.DeductionsSum.toFixed(2)}</td>
-                <td>${data.NetPaySum.toFixed(2)}</td>
+                <td>${(paystubData.p_EmployeeCount!=null)? paystubData.p_EmployeeCount:'-'}</td>
+                <td>${(paystubData.p_GrossPaySum!=null)?paystubData.p_GrossPaySum: '-'}</td>
+                <td>${(paystubData.p_DeductionsSum!=null)? paystubData.p_DeductionsSum: '-'}</td>
+                <td>${(paystubData.p_NetPaySum!=null)? paystubData.p_NetPaySum: '-'}</td>
                 <!-- Add more cells for additional columns -->
             `;
             paystubSummaryBody.appendChild(row);
-        });
-
         document.getElementById('paystubSummaryTable').style.display = 'block';
     } catch (error) {
         console.error('Error fetching paystub summary:', error);

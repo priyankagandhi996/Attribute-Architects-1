@@ -46,7 +46,7 @@ h1 {
     margin-bottom: 5px;
 }
 
-.form-group input[type="text"],
+.form-group input[type="date"],
 .form-group input[type="email"] {
     width: calc(100% - 18px);
     padding: 8px;
@@ -68,6 +68,10 @@ button {
     border-radius: 4px;
     gap: 10px;
 }
+
+ th ,td , table{
+    border: 1px solid black;
+ }
 
 .addTimesheetForm button,
 .addEmployeeForm button {

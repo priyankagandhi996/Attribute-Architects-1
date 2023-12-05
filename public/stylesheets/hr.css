@@ -82,4 +82,32 @@ table th {
 .deleteBtn:hover {
   background-color: #c82333;
 }
+.optionsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
 
+@media screen and (max-width: 600px) {
+  .optionsContainer {
+    justify-content: space-evenly;
+  }
+}
+.selectBox {
+  width: 150px;
+  height: 50px; 
+  font-size: 20px;
+  font-family: 'Helvetica';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+}
+.selectBox:hover {
+  background-color: #007bff;
+  font-style:italic;
+}
