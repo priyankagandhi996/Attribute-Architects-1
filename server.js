@@ -105,7 +105,7 @@ connection.then(connection => {
 	
 		try {
 			const bindings = {
-				p_PayPeriod: { dir: oracledb.BIND_IN, type: oracledb.DATE, val:  new Date(payPeriod) },
+				 p_PayPeriod: { dir: oracledb.BIND_IN, type: oracledb.STRING, val: payPeriod },
 				p_EmployeeCount: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
 				p_GrossPaySum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
 				p_DeductionsSum: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
@@ -114,7 +114,7 @@ connection.then(connection => {
 			console.log(bindings);
 
 			const result = await connection.execute(
-				`Begin Calc_PayrollSummary(:p_PayPeriod, :p_EmployeeCount, :p_GrossPaySum, :p_DeductionsSum, :p_NetPaySum); END;`,
+				`Begin Calc_PayrollSummary(TO_DATE(:p_PayPeriod, 'YYYY-MM-DD'), :p_EmployeeCount, :p_GrossPaySum, :p_DeductionsSum, :p_NetPaySum); END;`,
 				bindings);			
 			console.log(result);
 			console.log('Number of Employees with Paystubs:', result.outBinds.p_EmployeeCount);
