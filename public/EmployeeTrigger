@@ -1,0 +1,27 @@
+CREATE OR REPLACE TRIGGER BeforeInsertEmployee
+BEFORE INSERT ON EMPLOYEEP
+FOR EACH ROW
+DECLARE
+    department_count NUMBER;
+    manager_count NUMBER;
+BEGIN
+    -- Check if DepartmentID exists in DEPARTMENTP
+    SELECT COUNT(*) INTO department_count
+    FROM DEPARTMENTP
+    WHERE DepartmentID = :NEW.DepartmentID;
+
+    -- Check if ManagerID exists in EMPLOYEEP
+    SELECT COUNT(*) INTO manager_count
+    FROM EMPLOYEEP
+    WHERE EmployeeID = :NEW.ManagerID;
+
+    -- If DepartmentID or ManagerID does not exist, prevent the INSERT
+    IF department_count = 0 THEN
+        raise_application_error(-20001, 'DepartmentID does not exist');
+    END IF;
+
+    IF manager_count = 0 THEN
+        raise_application_error(-20001, 'ManagerID does not exist');
+    END IF;
+END;
+
