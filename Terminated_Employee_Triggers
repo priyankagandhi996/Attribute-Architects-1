@@ -34,20 +34,14 @@ BEGIN
     END IF;
 END;
 
---Trigger to prevent terminating an employee if they are still assigned as projects in WORKSONP---
-CREATE OR REPLACE TRIGGER prevent_term_employee_projects
+--Trigger deletes projects records in WORKSONP if an employee is terminated---
+CREATE OR REPLACE TRIGGER Delete_Worksonp_Record
 BEFORE UPDATE ON EMPLOYEEP
 FOR EACH ROW
-DECLARE
-    project_count NUMBER;
 BEGIN
-    -- Check if the employee is still assigned to any projects
-    SELECT COUNT(*) INTO project_count
-    FROM WORKSONP
-    WHERE EmployeeID = :OLD.EmployeeID;
-
-    -- If the employee is assigned to any projects, raise an error
-    IF project_count > 0 AND :NEW.EmployeeStatus = 'T' THEN
-        raise_application_error(-20001, 'Cannot change status to ''T'' for an employee who is still assigned to projects.');
+    IF :OLD.EmployeeStatus <> 'T' AND :NEW.EmployeeStatus = 'T' THEN
+        -- Delete records in WORKSONP for the employee
+        DELETE FROM WORKSONP
+        WHERE EmployeeID = :NEW.EmployeeID;
     END IF;
 END;
