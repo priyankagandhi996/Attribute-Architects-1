@@ -27,3 +27,22 @@ BEGIN
         WHERE EmployeeID = :NEW.EmployeeID;
     END IF;
 END;
+
+
+------ check if manager procedure ----------
+CREATE OR REPLACE PROCEDURE is_employee_manager(
+    p_employee_id IN EMPLOYEEP.EmployeeID%TYPE,
+    p_result OUT NUMBER
+)
+IS
+BEGIN
+    -- Check if the employee is a manager for anyone
+    SELECT COUNT(*)
+    INTO p_result
+    FROM EMPLOYEEP
+    WHERE ManagerID = p_employee_id AND EmployeeStatus = 'A';
+    DBMS_OUTPUT.PUT_LINE(p_result);
+    -- Set the result based on the count
+END is_employee_manager;
+/
+
