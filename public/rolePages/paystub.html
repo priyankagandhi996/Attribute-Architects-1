@@ -72,7 +72,7 @@
 
                 const row = tableBody.insertRow();
                 row.insertCell(0).textContent = entry.StubID; 
-                row.insertCell(1).textContent = entry.PayPeriod;
+                row.insertCell(1).textContent = entry.PayPeriod.substring(0, 10);
                 row.insertCell(2).textContent = entry.HoursWorked;
                 row.insertCell(3).textContent = entry.OtHoursWorked;
                 row.insertCell(4).textContent = entry.NetPay;
