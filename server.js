@@ -523,11 +523,14 @@ connection.then(connection => {
 	
 			// Check if the employeeID exists in the database
 			const checkResult = await connection.execute('SELECT * FROM EMPLOYEEP WHERE EmployeeID = :1', [EmployeeID]);
+			const managerActive = await connection.execute(`SELECT * FROM EMPLOYEEP WHERE EmployeeID = :1 and employeestatus='A'`, [ManagerID]);
 	
 			if (checkResult.rows.length === 0) {
 				return res.json({ success: false, message: 'Employee not found.' });
 			}
-	
+			if (managerActive.rows.length === 0) {
+						return res.json({ success: false, message: 'Manager is not active.' });
+					}
 			// If the employeeID exists, it's an update
 			// Build the update query dynamically based on provided fields
 			const updateFields = [];
