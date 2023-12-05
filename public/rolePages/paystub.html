@@ -48,6 +48,12 @@
         const employeeID = document.getElementById('EmployeeID').value;
         console.log("EmployeeID for fetch: " + employeeID);
 
+        console.log(employeeID.length);
+        if(employeeID!='' && (isNaN(employeeID) || employeeID.length>38)){
+          alert("Enter valid Employee id");
+          return;
+        }
+
         try {
             const response = await fetch(`/paystub/${employeeID}`);
             console.log("Response Status:", response.status);

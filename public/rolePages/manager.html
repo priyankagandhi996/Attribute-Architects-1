@@ -94,7 +94,7 @@
 
     async function checkValidEmployeeId(){
       const managerID = document.getElementById('ManagerID').value;
-      if(!isNaN(managerID)){
+      if(!isNaN(managerID) && managerID.length<=38){
         return true;
       }
       return false;
@@ -118,14 +118,6 @@ async function showAssignProjects() {
   async function hideTimeSheet() {
      var employeeTable = document.getElementById("employeeTable");
       employeeTable.style.display = "none";
-    }
-
-    async function checkValidEmployeeId(){
-      const managerID = document.getElementById('ManagerID').value;
-      if(!isNaN(managerID)){
-        return true;
-      }
-      return false;
     }
 
 async function showTimeSheet() {

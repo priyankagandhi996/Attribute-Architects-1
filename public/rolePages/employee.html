@@ -182,8 +182,13 @@
     alert('Pay Period must be on the first day of the month (YYYY-MM-01)');
     return;
   }
-
-  try {
+  var temp = await checkValidEmployeeId(employeeID);
+      console.log(temp)
+      if(!temp){
+        alert("Please enter valid employee if (numbers only)");
+        return;
+      }
+        try {
     const response = await fetch('/insertTimesheet', {
       method: 'POST',
       headers: {
@@ -499,10 +504,9 @@
 
     }
 
-    async function checkValidEmployeeId(){
-      const employeeID = document.getElementById('EmployeeID3').value;
-      console.log(employeeID);
-      if(!isNaN(employeeID)){
+    async function checkValidEmployeeId(employeeID){
+      console.log(employeeID.length);
+      if(!isNaN(employeeID) && employeeID.length<=38){
         return true;
       }
       return false;
@@ -510,10 +514,10 @@
 
     async function searchEmployee(){
       const employeeID = document.getElementById('EmployeeID3').value;
-      var temp = await checkValidEmployeeId();
+      var temp = await checkValidEmployeeId(employeeID);
       console.log(temp)
       if(!temp){
-        alert("Please eneter valid employee if (numbers only)");
+        alert("Please enter valid employee if (numbers only)");
         return;
       }
 
