@@ -1,5 +1,5 @@
 --------------------------------------------------------
---  DML File updated - December-2-2023  
+--  DML File updated - December-4-2023  
 --------------------------------------------------------
 --------------------------------------------------------
 --  Inserts for Table Department
@@ -26,14 +26,14 @@ INSERT INTO EMPLOYEEP VALUES (1403, 'Katrina', 'Bennet', TO_DATE('20-Sep-1991', 
 --  Inserts for Table Timesheet
 --------------------------------------------------------
 INSERT INTO TIMESHEET VALUES (1001, 1201, DATE '2023-01-01', 160, 'Y');
-INSERT INTO TIMESHEET VALUES (1002, 1201, DATE '2023-02-01', 160, 'N');
-INSERT INTO TIMESHEET VALUES (1003, 1302, DATE '2023-03-01', 130, 'N');
+INSERT INTO TIMESHEET VALUES (1002, 1201, DATE '2023-02-01', 160, 'P');
+INSERT INTO TIMESHEET VALUES (1003, 1302, DATE '2023-03-01', 130, 'P');
 INSERT INTO TIMESHEET VALUES (1004, 1303, DATE '2023-04-01', 120, 'Y');
 INSERT INTO TIMESHEET VALUES (1005, 1401, DATE '2023-06-01', 90, 'Y');
-INSERT INTO TIMESHEET VALUES (1006, 1402, DATE '2023-07-01', 100,'N');
+INSERT INTO TIMESHEET VALUES (1006, 1402, DATE '2023-07-01', 100,'P');
 INSERT INTO TIMESHEET VALUES (1007, 1403, DATE '2023-06-01', 110, 'Y');
 INSERT INTO TIMESHEET VALUES (1008, 1203, DATE '2023-02-01', 80, 'Y');
-INSERT INTO TIMESHEET VALUES (1009, 1301, DATE '2023-03-01', 120, 'N');
+INSERT INTO TIMESHEET VALUES (1009, 1301, DATE '2023-03-01', 120, 'P');
 INSERT INTO TIMESHEET VALUES (1010, 1301, DATE '2023-01-01', 140, 'Y');
 
 --------------------------------------------------------
@@ -65,6 +65,7 @@ INSERT INTO E_PROJECT VALUES (1, 'Migration project');
 INSERT INTO E_PROJECT VALUES (2, 'Project to change employee salary structure');
 INSERT INTO E_PROJECT VALUES (3, 'IT administration changes in company');
 INSERT INTO E_PROJECT VALUES (4, 'IT management project');
+INSERT INTO E_PROJECT VALUES (5, 'Miscellaneous');
 --------------------------------------------------------
 --  Inserts for Table Workon
 --------------------------------------------------------
@@ -82,3 +83,26 @@ INSERT INTO WORKSONP VALUES (3, 1303);
 --------------------------------------------------------
 --  Updates & Deletes Examples --
 --------------------------------------------------------
+
+--EMPLOYEE TABLE UPDATE--
+UPDATE EMPLOYEEP
+SET F_NAME='Liv'
+WHERE EMPLOYEEID=1401;
+
+--TIMESHEET TABLE UPDATE--
+UPDATE TIMESHEET
+SET M_APPROVAL='N'
+WHERE TIMESHEETID=1002;
+
+--BANKDETAILS TABLE UPDATE--
+UPDATE BANKDETAILS
+SET PaymentType='Direct Deposit', BankAcctNo=1234567890
+Where BankID=103;
+
+--PROJECTS TABLE DELETE--
+DELETE FROM E_PROJECT
+Where ProjectID=5;
+
+--WORKSON TABLE DELETE--
+DELETE FROM WORKSONP
+Where EmployeeID=1303;
