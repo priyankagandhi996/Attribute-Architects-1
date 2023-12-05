@@ -235,7 +235,11 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                if(data.error){
+                alert(data.details);                    
+                }else{
+                    alert(data.message)
+                }
                 fetchAndPopulateData();
             })
             .catch(error => console.error('Error adding employee:', error));
