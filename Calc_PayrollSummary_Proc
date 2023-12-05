@@ -1,12 +1,12 @@
 --Payroll Summary Procedure--
 create or replace PROCEDURE Calc_PayrollSummary(
-    p_PayPeriod DATE,
-    p_EmployeeCount OUT NUMBER,
-    p_GrossPaySum OUT NUMBER,
-    p_DeductionsSum OUT NUMBER,
-    p_NetPaySum OUT NUMBER
+    p_PayPeriod DATE
 )
 IS
+    p_EmployeeCount NUMBER;
+    p_GrossPaySum NUMBER;
+    p_DeductionsSum NUMBER;
+    p_NetPaySum NUMBER;
 BEGIN
     SELECT COUNT(DISTINCT t.EmployeeID),
            SUM(ps.GrossPay),
