@@ -27,4 +27,12 @@ END Calc_PayrollSummary;
 --Testing Procedure--
 
 set serveroutput on;
-execute  Calc_PayrollSummary(DATE '2023-01-01');
+DECLARE
+    v_PayPeriod DATE := DATE '2023-09-01';
+    v_EmployeeCount NUMBER;
+    v_GrossPaySum NUMBER;
+    v_DeductionsSum NUMBER;
+    v_NetPaySum NUMBER;
+BEGIN
+    Calc_PayrollSummary(v_PayPeriod, v_EmployeeCount, v_GrossPaySum, v_DeductionsSum, v_NetPaySum);
+END;
