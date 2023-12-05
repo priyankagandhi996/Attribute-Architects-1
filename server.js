@@ -446,9 +446,10 @@ connection.then(connection => {
 				return res.status(400).json({ error: 'Missing required fields.' });
 			}
 	
-			// You may want to validate other fields and handle date formatting
+			
+			let modifiedManagerID = ManagerID.trim().toLowerCase() === 'none' ? null : ManagerID;
+			console.log("modified manager ID: " + modifiedManagerID);
 	
-			// Create the INSERT statement
 			const insertQuery = `
 				INSERT INTO EMPLOYEEP (
 					EmployeeID,
@@ -471,9 +472,9 @@ connection.then(connection => {
 					:DepartmentID,
 					:Position_1,
 					:Wage,
-					:ManagerID
+					:modifiedManagerID
 				)`;
-	
+
 			// Execute the INSERT statement
 			const result = await connection.execute(insertQuery, {
 				EmployeeID,
@@ -485,9 +486,9 @@ connection.then(connection => {
 				DepartmentID,
 				Position_1,
 				Wage,
-				ManagerID
+				modifiedManagerID
 			}, { autoCommit: true }); // autoCommit: true to commit the transaction immediately
-	
+
 			// Check if the insert was successful
 			if (result.rowsAffected === 1) {
 				return res.json({ success: true, message: 'Employee inserted successfully.' });

@@ -178,6 +178,8 @@
         const Wage = document.getElementById('Wage').value;
         const ManagerID = document.getElementById('ManagerID').value;
 
+        //const modifiedManagerID = ManagerID.trim().toLowerCase() === 'none' ? null : ManagerID;
+
         const integerPattern = /^-?\d+$/;
         if (!(integerPattern.test(EmployeeID)) || parseInt(EmployeeID) > 9999) {
             alert('Please enter a valid Employee ID');

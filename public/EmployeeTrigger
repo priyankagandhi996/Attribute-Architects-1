@@ -11,9 +11,11 @@ BEGIN
     WHERE DepartmentID = :NEW.DepartmentID;
 
     -- Check if ManagerID exists in EMPLOYEEP
+    IF :NEW.ManagerID IS NOT NULL THEN
     SELECT COUNT(*) INTO manager_count
     FROM EMPLOYEEP
     WHERE EmployeeID = :NEW.ManagerID;
+    End IF;
 
     -- If DepartmentID or ManagerID does not exist, prevent the INSERT
     IF department_count = 0 THEN

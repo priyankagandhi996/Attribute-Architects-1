@@ -16,30 +16,14 @@ BEGIN
     END IF;
 END;
 
---Trigger to prevent terminating an employee if they are still assigned as an employee's manager--
-CREATE OR REPLACE PROCEDURE is_employee_manager(
-    p_employee_id IN EMPLOYEEP.EmployeeID%TYPE,
-    p_result OUT BOOLEAN
-)
-IS
-    v_employee_count NUMBER;
+--Trigger deletes projects records in WORKSONP if an employee is terminated---
+CREATE OR REPLACE TRIGGER Delete_Worksonp_Record
+BEFORE UPDATE ON EMPLOYEEP
+FOR EACH ROW
 BEGIN
-    -- Check if the employee is a manager for anyone
-    SELECT COUNT(*)
-    INTO v_employee_count
-    FROM EMPLOYEEP
-    WHERE ManagerID = p_employee_id AND EmployeeStatus = 'A';
-    DBMS_OUTPUT.PUT_LINE(v_employee_count);
-    -- Set the result based on the count
-    p_result := (v_employee_count > 0);
-END is_employee_manager;
-/
-
-set serveroutput on;
-DECLARE
-    v_result BOOLEAN;
-BEGIN
-    is_employee_manager(1399, v_result);
-    DBMS_OUTPUT.PUT_LINE('Is a manager: ' || CASE WHEN v_result THEN 'TRUE' ELSE 'FALSE' END);
+    IF :OLD.EmployeeStatus <> 'T' AND :NEW.EmployeeStatus = 'T' THEN
+        -- Delete records in WORKSONP for the employee
+        DELETE FROM WORKSONP
+        WHERE EmployeeID = :NEW.EmployeeID;
+    END IF;
 END;
-/
